@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "370897824864",
+    "project_id": "sahyadrifoodcourt",
+    "storage_bucket": "sahyadrifoodcourt.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370897824864:android:86f28350c2972fc8e12705",
+        "android_client_info": {
+          "package_name": "com.example.sahyadri_food_court"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "370897824864-msll1ucdvnlbpkoi9uphf21shnc0kpko.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdsshYfg2DF4feQuw25atjnf0YnnVN484"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "370897824864-msll1ucdvnlbpkoi9uphf21shnc0kpko.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
