@@ -1,7 +1,49 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'authentication/auth.dart';
 import 'foodcard.dart';
+
+class Reviews {
+  String userID;
+  String userName;
+  late Ratings ratings;
+  Reviews(
+      {required this.userID, required this.userName, required this.ratings});
+
+  factory Reviews.fromJson(Map<dynamic, dynamic> json) => Reviews(
+      userID: json['UserID'],
+      userName: json['UserName'],
+      ratings: Ratings.fromJson(json['ratings']));
+
+  Map<String, dynamic> toJson() => {
+        "UserID": userID,
+        "UserName": userName,
+        "ratings": ratings.toJson(),
+      };
+
+  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class Ratings {
+  String oneStar;
+  String twoStar;
+  String threeStar;
+  Ratings(
+      {required this.oneStar, required this.twoStar, required this.threeStar});
+
+  factory Ratings.fromJson(Map<dynamic, dynamic> json) => Ratings(
+        oneStar: json['1-star'],
+        twoStar: json['2-star'],
+        threeStar: json['3-star'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "1-star": oneStar,
+        "2-star": twoStar,
+        "3-star": threeStar,
+      };
+}
 
 class FoodApp extends StatefulWidget {
   FoodApp({required this.auth, required this.onSignOut});
@@ -12,6 +54,7 @@ class FoodApp extends StatefulWidget {
 }
 
 class _FoodAppState extends State<FoodApp> {
+  CollectionReference username = FirebaseFirestore.instance.collection('food');
   //here i'm going to place a list of image url
   List<String> imgUrl = [
     "https://pngimage.net/wp-content/uploads/2018/06/idli-png-1.png",
@@ -22,6 +65,29 @@ class _FoodAppState extends State<FoodApp> {
     "https://pngimage.net/wp-content/uploads/2018/06/sizzler-png-8.png",
   ];
   int index = 0;
+  Map<dynamic, dynamic> lists = {};
+
+  final databaseReference = FirebaseDatabase().reference();
+
+  void readData() async {
+    await username.get().then((value) => value.docs.asMap());
+    /*((snapshot) {
+      if (snapshot.docs != null) {
+        var map = snapshot.docs;
+        print(map);
+        if (map != null) {
+          map.forEach((change) {
+            //fromJson(change.data());
+            print(change.data().toString().);
+          });
+        }
+      }
+    });*/
+  }
+
+  fromJson(Map<dynamic, dynamic> json) => (json) {
+        print(json.keys);
+      };
   @override
   Widget build(BuildContext context) {
     void _signOut() async {
@@ -63,86 +129,22 @@ class _FoodAppState extends State<FoodApp> {
       ),
 
       //Now let's build the body of our app
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            //Let's create the welcoming Text
-            Text(
-              "Let's Enjoy the Food \n    Order your Food Now..",
-              style: TextStyle(
-                fontSize: 27.0,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-            Container(
-              width: double.infinity,
-              height: 50.0,
-              decoration: BoxDecoration(
-                color: Color(0x55d2d2d2),
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Search... ",
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.only(left: 20.0),
-                    ),
-                  )),
-                  RaisedButton(
-                    elevation: 3.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                    onPressed: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 15.0),
-                      child: Icon(
-                        Icons.search,
-                        color: Colors.white,
-                      ),
-                    ),
-                    color: Color(0xFFfc6a26),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: () {},
-              tooltip: "filter",
-              icon: Icon(
-                Icons.filter_list_alt,
-                color: Colors.black,
-              ),
-              padding: EdgeInsets.only(left: 290),
-            ),
-            //Now let's build the food menu
-            //I'm going to create a custom widget
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                //let's change the aspect ration for the child card
-                childAspectRatio: 0.7,
-                children: [
-                  foodCard(widget.auth, imgUrl[0], "Idli", "25"),
-                  foodCard(widget.auth, imgUrl[1], "Dosa", "30"),
-                  foodCard(widget.auth, imgUrl[2], "Poori", "20"),
-                  foodCard(widget.auth, imgUrl[3], "parata", "30"),
-                  foodCard(widget.auth, imgUrl[4], "Meat plate", "25"),
-                  foodCard(widget.auth, imgUrl[5], "Meat plate", "25"),
-                ],
-              ),
-            )
-          ],
-        ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('food').snapshots(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          readData();
+          if (!snapshot.hasData) {
+            return Center(child: const Text('Loading events...'));
+          }
+          return GridView.builder(
+            gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+            itemBuilder: (BuildContext context, int index) {
+              return Text(snapshot.data.docs);
+            },
+            itemCount: 2,
+          );
+        },
       ),
 
       //Now let's create the bottom bar
@@ -181,6 +183,5 @@ class _FoodAppState extends State<FoodApp> {
     setState(() {
       index = currentIndex;
     });
-    
   }
 }
