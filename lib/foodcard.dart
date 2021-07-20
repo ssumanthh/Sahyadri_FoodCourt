@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'authentication/auth.dart';
 
-Widget foodCard(BaseAuth auth, String img, String title, String price) {
+Widget foodCard(BaseAuth auth, String img, String title, int price) {
   bool add = false;
   return Container(
     child: Card(
@@ -13,22 +13,19 @@ Widget foodCard(BaseAuth auth, String img, String title, String price) {
           children: [
             Image.network(
               img,
-              height: 100.0,
+              height: 55.0,
             ),
-            SizedBox(
-              height: 8.0,
-            ),
-            Flexible(
-              child: Text(
+           
+             Text(
                 title,
                 style: TextStyle(
                   fontSize: 22.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
+          
             SizedBox(
-              height: 20.0,
+              height: 8.0,
             ),
             Row(
               children: [

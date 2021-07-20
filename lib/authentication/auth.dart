@@ -7,7 +7,7 @@ abstract class BaseAuth {
   Future<String?> currentUser();
   Future<String> signIn(String email, String password);
   Future<String> createUser(String name, String email, String password);
-  Future<String?> addUserFav(String fname, String link, String price);
+  Future<String?> addUserFav(String fname, String link, int price);
   Future<void> signOut();
 }
 
@@ -47,7 +47,7 @@ class Auth implements BaseAuth {
   }
 
 //add user's fav food to database
-   Future<String?> addUserFav(String fname,String link, String price) async {
+   Future<String?> addUserFav(String fname,String link, int price) async {
     User? user = await _firebaseAuth.currentUser;
     await username.doc(user!.uid).set({'FavFood': {'name':fname,'link':link,'price':price}},SetOptions(merge : true));
     return user != null ? user.email : null;
