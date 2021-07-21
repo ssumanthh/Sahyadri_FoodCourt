@@ -33,50 +33,44 @@ class _LoadState extends State<Load> {
         itemBuilder: (context, index) {
           final doc = snapshot.docs[index]; 
       return Card(
-      child: Column(    
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Image.network(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        ListTile(
+                          isThreeLine: true,
+                          leading:Image.network(
               doc['image'],
               height: 70.0,
             ),
-          ),
-         
-           Padding(
-             padding: const EdgeInsets.only(left: 10),
-             child: Text(
-                doc['name'],
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-           ),
-           
-              Padding(
-                padding: const EdgeInsets.only(left: 220.0,right: 30,bottom: 20),
-                child: TextField(
-                  
-                  decoration: InputDecoration(
-                    labelText: 'Available'
-                  ),
-                ),
-              ),
-
-             Padding(
-               padding: const EdgeInsets.only(left: 220.0,bottom: 20),
-               child: RaisedButton(onPressed: (){
-                            },
-                            child: Text('Submit'),
-                            color: Colors.orange,
-                            textColor: Colors.black,),
-             ),
-            ]
-            
-            
-            ));
+          
+                          title: Text('${doc['name']}'),
+                          subtitle: Text(
+                            '${doc['cost']}\n${doc['available']}',
+                          ),
+                        ),
+                        new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            //button to make calls
+                            SizedBox(width:100,child: 
+                            new TextField(
+                              
+                              decoration: InputDecoration(
+                                hintText: 'aivailable',
+                              ),
+                            ),
+                            ),
+                            //button to send msg
+                            new FlatButton(
+                              child: const Text('submit'),
+                              onPressed: () {},
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20,)
+                      ],
+                    ),
+                  );
         });
   }
 
