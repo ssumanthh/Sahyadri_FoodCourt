@@ -41,9 +41,7 @@ Widget foodCard(BaseAuth auth, String img, String title, int price) {
                 Expanded(
                   child: IconButton(
                     onPressed: () {
-                      auth.addUserFav(title,img,price).then((emailid){
-                        print("email:$emailid");
-                      });
+                   
                     },
                     icon: Icon(
                       Icons.favorite_border,

@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
         loading = true;
       });
       //if user enters admin id then give error msg
-      if (_email != 'foodcour@gmail.com') {
+      if (_email != 'foodcourt@gmail.com') {
         
         try {
           String userId = _formType == FormType.login
