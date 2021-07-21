@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 abstract class BaseAuth {
   Future<String?> currentUseremail();
   Future<String?> currentUser();
+  Future<List<dynamic>> getfavFood();
   Future<String> signIn(String email, String password);
   Future<String> createUser(String name, String email, String password);
   Future<String?> addUserFav(String fname, String link, int price);
@@ -16,7 +17,7 @@ class Auth implements BaseAuth {
   final CollectionReference username =
       FirebaseFirestore.instance.collection('name');
 
-      //signIn method
+  //signIn method
   Future<String> signIn(String email, String password) async {
     final User? user = (await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password))
@@ -47,10 +48,31 @@ class Auth implements BaseAuth {
   }
 
 //add user's fav food to database
-   Future<String?> addUserFav(String fname,String link, int price) async {
+  Future<String?> addUserFav(String fname, String link, int price) async {
     User? user = await _firebaseAuth.currentUser;
-    await username.doc(user!.uid).set({'FavFood': {'name':fname,'link':link,'price':price}},SetOptions(merge : true));
+    username
+        .doc(user!.uid) // <-- Document ID
+        .set({
+          'favFood': FieldValue.arrayUnion([fname])
+        }, SetOptions(merge: true)) // <-- Add data
+        .then((_) => print('Added'))
+        .catchError((error) => print('Add failed: $error'));
     return user != null ? user.email : null;
+  }
+
+  Future<List<dynamic>> getfavFood() async {
+    User? user = await _firebaseAuth.currentUser;
+    List<dynamic> u = [];
+  username.doc(user!.uid).get().then((task) => {
+          if (task.exists)
+            {
+              u = task.get('favFood'),
+              print(u),
+            }
+        });
+
+    print(u);
+    return u;
   }
 
 //sinout method
