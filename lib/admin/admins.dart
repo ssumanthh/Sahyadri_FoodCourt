@@ -62,13 +62,16 @@ class _AdminState extends State<Admin> {
                         ),
                         new Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
+                          children: [  
                             //button to make calls
                             SizedBox(width:100,child: 
                             new TextField(
                               controller:availableControler ,
-                              
+                              cursorColor:Color(0xFFf68634),
                               decoration: InputDecoration(
+                                enabledBorder: UnderlineInputBorder( borderSide: BorderSide(color: Color(0xFFf68634)), ),
+                                
+                                 focusedBorder: UnderlineInputBorder( borderSide: BorderSide(color: Color(0xFFf68634)), ),
                                 labelStyle:TextStyle(
                       color: Color(0xFFf68634),
                     ),

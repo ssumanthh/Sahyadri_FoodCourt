@@ -40,9 +40,10 @@ class _favouriteState extends State<favourite> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
         backgroundColor: Colors.white,
-        body: loading?Loader(): StreamBuilder<QuerySnapshot>(
+        body: loading?Loader(): favItems.isEmpty?Center(child:Text('no data')): StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection("food")
                         .where(

@@ -4,6 +4,8 @@ import 'authentication/auth.dart';
 
 Widget foodCard(
     BaseAuth auth, String img, String name, int price, bool added) {
+      bool fav = false;
+      bool notFav = false;
   return Container(
     child: Card(
       child: Padding(
@@ -41,11 +43,16 @@ Widget foodCard(
                       ? IconButton(
                           onPressed: () {
                             auth.deleteUserFav(name);
+                            notFav = true;
                           },
-                          icon: Icon(
+                          icon:!notFav? Icon(
                             Icons.favorite,
                             color: Colors.red,
-                          ))
+                          ):Icon(
+                            Icons.favorite,
+                            color: Colors.black,
+                          )
+                          )
                       : IconButton(
                           onPressed: () {
                             auth.addUserFav(name,'i',3);
