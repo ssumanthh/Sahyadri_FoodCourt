@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sahyadri_food_court/widgets/favourite.dart';
+import 'package:sahyadri_food_court/widgets/loader.dart';
 import 'authentication/auth.dart';
 import 'foodcard.dart';
 
@@ -11,6 +13,13 @@ class FoodApp extends StatefulWidget {
   @override
   _FoodAppState createState() => _FoodAppState();
 }
+
+enum AuthStatus {
+  home,
+  fav,
+}
+
+AuthStatus authStatus = AuthStatus.home;
 
 class _FoodAppState extends State<FoodApp> {
   CollectionReference username = FirebaseFirestore.instance.collection('food');
@@ -24,26 +33,7 @@ class _FoodAppState extends State<FoodApp> {
   //   "https://pngimage.net/wp-content/uploads/2018/06/sizzler-png-8.png",
   // ];
   int index = 0;
-  List<dynamic> favItems = [];
-  void initState() {
-    super.initState();
-    get();
-  }
-
-  void get() async {
-    User? user = await FirebaseAuth.instance.currentUser;
-    List<dynamic> u = [];
-    await username.doc(user!.uid).get().then((task)  {
-      setState(() {
-        if (task.exists) {
-          u = task.get('favFood');
-          print(u);
-          favItems = u;
-          loading = false;
-        }
-      });
-    });
-  }
+  
 
   Widget _buildGride(QuerySnapshot? snapshot) {
     return GridView.builder(
@@ -53,11 +43,11 @@ class _FoodAppState extends State<FoodApp> {
         itemBuilder: (context, index) {
           final doc = snapshot.docs[index];
 
-          return foodCard(widget.auth, doc['image'], doc['name'], doc['cost']);
+          return foodCard(widget.auth, doc['image'], doc['name'], doc['cost'],false);
         });
   }
 
-  bool loading = true;
+
   @override
   Widget build(BuildContext context) {
     void _signOut() async {
@@ -99,7 +89,7 @@ class _FoodAppState extends State<FoodApp> {
       ),
 
       //Now let's build the body of our app
-      body: Padding(
+      body:index==0?Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -138,11 +128,7 @@ class _FoodAppState extends State<FoodApp> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    onPressed: () {
-                      get();
-                      print(favItems);
-                      
-                    },
+                    onPressed: () {},
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 15.0),
                       child: Icon(
@@ -156,15 +142,7 @@ class _FoodAppState extends State<FoodApp> {
               ),
             ),
             IconButton(
-              onPressed: () {
-                widget.auth.getfavFood().then((value) {
-                  setState(() {
-                    favItems = value;
-                  });
-                  print(favItems);
-                });
-                print(favItems);
-              },
+              onPressed: () {},
               tooltip: "filter",
               icon: Icon(
                 Icons.filter_list_alt,
@@ -174,36 +152,20 @@ class _FoodAppState extends State<FoodApp> {
             ),
             //build the food menu
             //I'm going to create a custom widget
-            loading
-                ? StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection("food")
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      print(snapshot.data);
-                      if (!snapshot.hasData) return LinearProgressIndicator();
-                      if (snapshot.hasError) return CircularProgressIndicator();
-                      return Expanded(child: _buildGride(snapshot.data));
-                    },
-                  )
-                : StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection("food")
-                        .where(
-                          'name',
-                          whereIn: favItems,
-                        )
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      print(snapshot.data);
-                      if (!snapshot.hasData) return LinearProgressIndicator();
-                      if (snapshot.hasError) return CircularProgressIndicator();
-                      return Expanded(child: _buildGride(snapshot.data));
-                    },
-                  ),
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection("food").snapshots(),
+              builder: (context, snapshot) {
+                print(snapshot.data);
+                if (!snapshot.hasData) return LinearProgressIndicator();
+                if (snapshot.hasError) return CircularProgressIndicator();
+                return Expanded(child: _buildGride(snapshot.data));
+              },
+            )
           ],
         ),
-      ),
+      ):index==1?favourite(
+        auth: widget.auth,
+      ): index==2?Loader():index==3?Loader():null,
 
       // create the bottom bar
       bottomNavigationBar: BottomNavigationBar(

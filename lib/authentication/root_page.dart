@@ -79,7 +79,7 @@ class _RootPageState extends State<RootPage> {
         }
       case AuthStatus.admin:
         {
-          return new Load(
+          return new Admin(
               auth: widget.auth,
               onSignOut: () => _updateAuthStatus(AuthStatus.notSignedIn));
         }

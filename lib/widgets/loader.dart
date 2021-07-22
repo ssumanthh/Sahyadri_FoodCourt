@@ -13,10 +13,10 @@ class _LoaderState extends State<Loader>{
 @override
  Widget build (BuildContext context){
    return Scaffold(
-     backgroundColor :  Color(0xFF75A2EA),
+     backgroundColor : Colors.white ,
      body: Center(
        child:CircularProgressIndicator(
-          color: Colors.white,
+          color: Color(0xFFfc6a26),
          )
      )  
      );
