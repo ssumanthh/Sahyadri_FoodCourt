@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
 import 'package:sahyadri_food_court/foodcard.dart';
 
-class Load extends StatefulWidget {
-  Load({required this.auth, required this.onSignOut});
+class Admin extends StatefulWidget {
+  Admin({required this.auth, required this.onSignOut});
   final BaseAuth auth;
   final VoidCallback onSignOut;
   @override
-  _LoadState createState() => _LoadState();
+  _AdminState createState() => _AdminState();
 }
 
-class _LoadState extends State<Load> {
+class _AdminState extends State<Admin> {
   CollectionReference username = FirebaseFirestore.instance.collection('food');
   //here i'm going to place a list of image url
   // List<String> imgUrl = [
@@ -32,6 +32,8 @@ class _LoadState extends State<Load> {
         itemCount: snapshot!.docs.length,
         itemBuilder: (context, index) {
           final doc = snapshot.docs[index]; 
+          TextEditingController availableControler = new TextEditingController();
+          availableControler.text=doc['available'].toString();
       return Card(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -43,10 +45,20 @@ class _LoadState extends State<Load> {
               height: 70.0,
             ),
           
-                          title: Text('${doc['name']}'),
+                          title: Text(
+                    doc['name'],
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                           subtitle: Text(
-                            '${doc['cost']}\n${doc['available']}',
-                          ),
+                    "${doc['cost']} ₹",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                         ),
                         new Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -54,17 +66,25 @@ class _LoadState extends State<Load> {
                             //button to make calls
                             SizedBox(width:100,child: 
                             new TextField(
+                              controller:availableControler ,
                               
                               decoration: InputDecoration(
-                                hintText: 'aivailable',
+                                labelStyle:TextStyle(
+                      color: Color(0xFFf68634),
+                    ),
+                                labelText: 'available',
                               ),
                             ),
                             ),
                             //button to send msg
-                            new FlatButton(
-                              child: const Text('submit'),
-                              onPressed: () {},
-                            ),
+                            new RaisedButton(
+          child: new Text('Submit',
+              style: new TextStyle(color: Colors.white, fontSize: 10.0)),
+          shape: new RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(5))),
+          color: Color(0xFFf68634),
+          textColor: Colors.black87,
+          onPressed:(){}),
                           ],
                         ),
                         SizedBox(height: 20,)
