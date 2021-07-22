@@ -5,10 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 abstract class BaseAuth {
   Future<String?> currentUseremail();
   Future<String?> currentUser();
-  Future<List<dynamic>> getfavFood();
+  Future<List<dynamic>?> getfavFood();
   Future<String> signIn(String email, String password);
   Future<String> createUser(String name, String email, String password);
-  Future<String?> addUserFav(String fname, String link, int price);
+  Future<String?> addUserFav(String fname, String name, int i);
+  Future<String?> deleteUserFav(String fname);
   Future<void> signOut();
 }
 
@@ -48,7 +49,7 @@ class Auth implements BaseAuth {
   }
 
 //add user's fav food to database
-  Future<String?> addUserFav(String fname, String link, int price) async {
+  Future<String?> addUserFav(String fname, String name, int i) async {
     User? user = await _firebaseAuth.currentUser;
     username
         .doc(user!.uid) // <-- Document ID
@@ -60,18 +61,30 @@ class Auth implements BaseAuth {
     return user != null ? user.email : null;
   }
 
-  Future<List<dynamic>> getfavFood() async {
+  Future<String?> deleteUserFav(String fname) async {
     User? user = await _firebaseAuth.currentUser;
-    List<dynamic> u = [];
-  username.doc(user!.uid).get().then((task) => {
+    username
+        .doc(user!.uid) // <-- Document ID
+        .update({
+   'favFood': FieldValue.arrayRemove([fname])
+}) // <-- Delete data
+        .then((_) => print('deletd'))
+        .catchError((error) => print('Add failed: $error'));
+    return user != null ? user.email : null;
+  }
+
+  Future<List<dynamic>?> getfavFood() async {
+    User? user = await _firebaseAuth.currentUser;
+    List<dynamic>? u = [];
+    bool l = true;
+    await username.doc(user!.uid).get().then((task) => {
           if (task.exists)
             {
+              l = false,
               u = task.get('favFood'),
-              print(u),
             }
         });
 
-    print(u);
     return u;
   }
 

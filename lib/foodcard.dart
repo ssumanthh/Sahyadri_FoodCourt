@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'authentication/auth.dart';
 
-Widget foodCard(BaseAuth auth, String img, String title, int price) {
-  bool add = false;
+Widget foodCard(
+    BaseAuth auth, String img, String name, int price, bool added) {
   return Container(
     child: Card(
       child: Padding(
@@ -15,15 +15,13 @@ Widget foodCard(BaseAuth auth, String img, String title, int price) {
               img,
               height: 55.0,
             ),
-           
-             Text(
-                title,
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w600,
-                ),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 22.0,
+                fontWeight: FontWeight.w600,
               ),
-          
+            ),
             SizedBox(
               height: 8.0,
             ),
@@ -39,15 +37,24 @@ Widget foodCard(BaseAuth auth, String img, String title, int price) {
                   ),
                 ),
                 Expanded(
-                  child: IconButton(
-                    onPressed: () {
-                   
-                    },
-                    icon: Icon(
-                      Icons.favorite_border,
-                      color: Colors.black,
-                    ),
-                  ),
+                  child: added
+                      ? IconButton(
+                          onPressed: () {
+                            auth.deleteUserFav(name);
+                          },
+                          icon: Icon(
+                            Icons.favorite,
+                            color: Colors.red,
+                          ))
+                      : IconButton(
+                          onPressed: () {
+                            auth.addUserFav(name,'i',3);
+                          },
+                          icon: Icon(
+                            Icons.favorite_outline_rounded,
+                            color: Colors.black,
+                          ),
+                        ),
                 )
               ],
             )
