@@ -11,6 +11,7 @@ abstract class BaseAuth {
   Future<String?> addUserFav(String fname, String name, int i);
   Future<String?> deleteUserFav(String fname);
   Future<void> signOut();
+  Future<String?> userOrder(String fname,  int itemCount);
 }
 
 class Auth implements BaseAuth {
@@ -60,7 +61,20 @@ class Auth implements BaseAuth {
         .catchError((error) => print('Add failed: $error'));
     return user != null ? user.email : null;
   }
-
+Future<String?> userOrder(String fname,  int itemCount) async {
+    User? user = await _firebaseAuth.currentUser;
+    username
+        .doc(user!.uid) // <-- Document ID
+        .set({
+          'Orders':{
+            'name': fname,
+            'itemCount': itemCount
+          }
+        }, SetOptions(merge: true)) // <-- Add data
+        .then((_) => print('Added'))
+        .catchError((error) => print('Add failed: $error'));
+    return user != null ? user.email : null;
+  }
   Future<String?> deleteUserFav(String fname) async {
     User? user = await _firebaseAuth.currentUser;
     username

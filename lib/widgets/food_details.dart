@@ -113,7 +113,13 @@ int count = 0;
                 ],
               )
      ),
-     FlatButton(child: Text('Order Now'),onPressed: (){},)
+     FlatButton(child: Text('Order Now'),onPressed: (){
+       widget.auth.userOrder(widget.name, count);
+     },)
+     
+     FlatButton(child: Text('Order Now'),onPressed: (){
+       widget.auth.userOrder(widget.name, count);
+     },)
        ]
      )
      );
