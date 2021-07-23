@@ -1,12 +1,39 @@
 import 'package:flutter/material.dart';
-
+import 'package:sahyadri_food_court/widgets/food_details.dart';
 import 'authentication/auth.dart';
+import 'package:flutter/rendering.dart';
 
-Widget foodCard(
-    BaseAuth auth, String img, String name, int price, bool added) {
+class Foodcard extends StatefulWidget{
+  Foodcard({
+    required this.auth, required this.img,required this.name, required this.price,required this.available,required this.added
+  });
+  final BaseAuth auth;
+  final String img;
+  final String name;
+  final int price;
+  final int available;
+  final bool added;
+  @override
+  _FoodcardState createState()=>_FoodcardState();
+}
+
+class _FoodcardState extends State<Foodcard>{
+  @override
+  Widget build(BuildContext context) {
       bool fav = false;
       bool notFav = false;
-  return Container(
+  return InkWell( 
+    onTap: (){
+      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Food_Details(
+                            auth:widget.auth, img:widget.img, name:widget.name, price:widget.price,available:widget.available, added: true,
+                              ),
+                        ),
+                      );
+    },
+    child:Container(
     child: Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -14,11 +41,11 @@ Widget foodCard(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.network(
-              img,
+              widget.img,
               height: 55.0,
             ),
             Text(
-              name,
+              widget.name,
               style: TextStyle(
                 fontSize: 22.0,
                 fontWeight: FontWeight.w600,
@@ -31,7 +58,7 @@ Widget foodCard(
               children: [
                 Expanded(
                   child: Text(
-                    "${price} ₹",
+                    "${widget.price} ₹",
                     style: TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.w700,
@@ -39,10 +66,10 @@ Widget foodCard(
                   ),
                 ),
                 Expanded(
-                  child: added
+                  child: widget.added
                       ? IconButton(
                           onPressed: () {
-                            auth.deleteUserFav(name);
+                            widget.auth.deleteUserFav(widget.name);
                             notFav = true;
                           },
                           icon:!notFav? Icon(
@@ -55,7 +82,7 @@ Widget foodCard(
                           )
                       : IconButton(
                           onPressed: () {
-                            auth.addUserFav(name,'i',3);
+                            widget.auth.addUserFav(widget.name,'i',3);
                           },
                           icon: Icon(
                             Icons.favorite_outline_rounded,
@@ -64,10 +91,14 @@ Widget foodCard(
                         ),
                 )
               ],
-            )
+            ),
+            widget.available>0?Text('Available....',
+            style:TextStyle(color: Colors.green),):Text(' Not Available!',
+            style:TextStyle(color: Colors.red),),
           ],
         ),
       ),
     ),
-  );
+  ));
+}
 }
