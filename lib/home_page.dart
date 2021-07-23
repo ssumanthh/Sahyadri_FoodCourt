@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +35,8 @@ class _FoodAppState extends State<FoodApp> {
   //   "https://pngimage.net/wp-content/uploads/2018/06/sizzler-png-8.png",
   // ];
   int index = 0;
-  
+  bool filter = false;
+  String filterType = '';
 
   Widget _buildGride(QuerySnapshot? snapshot) {
     return GridView.builder(
@@ -43,7 +46,7 @@ class _FoodAppState extends State<FoodApp> {
         itemBuilder: (context, index) {
           final doc = snapshot.docs[index];
 
-          return foodCard(widget.auth, doc['image'], doc['name'], doc['cost'],false);
+          return Foodcard(auth:widget.auth, img:doc['image'], name:doc['name'], price:doc['cost'],available:doc['available'],added:false);
         });
   }
 
@@ -89,7 +92,21 @@ class _FoodAppState extends State<FoodApp> {
       ),
 
       //Now let's build the body of our app
-      body:index==0?Padding(
+      body:index==0?filter?StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection("food")
+                        .where(
+                          'type',
+                          isEqualTo:filterType,
+                        )
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      print(snapshot.data);
+                      if (!snapshot.hasData) return LinearProgressIndicator();
+                      if (snapshot.hasError) return CircularProgressIndicator();
+                      return _buildGride(snapshot.data);
+                    },
+                  ):Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -141,17 +158,26 @@ class _FoodAppState extends State<FoodApp> {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () {},
-              tooltip: "filter",
-              icon: Icon(
-                Icons.filter_list_alt,
-                color: Colors.black,
-              ),
+            Padding(
               padding: EdgeInsets.only(left: 290),
+              child: PopupMenuButton(
+                
+                child: Icon(Icons.filter_list_alt),
+                itemBuilder: (BuildContext context){
+                  return {'breakfast', 'meals'}
+                                      .map((String choice) {
+                                    return PopupMenuItem<String>(
+                                        value: choice,
+                                        child: Button(choice));
+                                  }).toList(); 
+                },
+              ),
             ),
+              
+            
             //build the food menu
             //I'm going to create a custom widget
+            
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance.collection("food").snapshots(),
               builder: (context, snapshot) {
@@ -199,9 +225,22 @@ class _FoodAppState extends State<FoodApp> {
     );
   }
 
+
   checkIndex(int currentIndex) {
     setState(() {
       index = currentIndex;
+      filter = false;
     });
   }
+
+Widget Button(String filtersType){
+  return FlatButton(onPressed: (){
+    setState(() {
+      print(filtersType);
+      filterType = filtersType;
+      filter = true;
+    });
+  }, child: Text(filtersType));
+
+}
 }
