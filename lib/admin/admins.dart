@@ -32,6 +32,7 @@ class _AdminState extends State<Admin> {
         itemCount: snapshot!.docs.length,
         itemBuilder: (context, index) {
           final doc = snapshot.docs[index]; 
+          print(doc.id);
           TextEditingController availableControler = new TextEditingController();
           availableControler.text=doc['available'].toString();
       return Card(
@@ -53,7 +54,7 @@ class _AdminState extends State<Admin> {
                     ),
                   ),
                           subtitle: Text(
-                    "${doc['cost']} ₹",
+                    "${doc['available']}\n${doc['cost']} ₹",
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w700,
@@ -66,6 +67,7 @@ class _AdminState extends State<Admin> {
                             //button to make calls
                             SizedBox(width:100,child: 
                             new TextField(
+                              keyboardType: TextInputType.phone,
                               controller:availableControler ,
                               cursorColor:Color(0xFFf68634),
                               decoration: InputDecoration(
@@ -87,7 +89,10 @@ class _AdminState extends State<Admin> {
               borderRadius: BorderRadius.all(Radius.circular(5))),
           color: Color(0xFFf68634),
           textColor: Colors.black87,
-          onPressed:(){}),
+          onPressed:(){
+            print(availableControler.text);
+            FirebaseFirestore.instance.collection('food').doc(doc.id).set({'available':int.parse(availableControler.text) }, SetOptions(merge: true)).then((value) => print("succues"));
+          }),
                           ],
                         ),
                         SizedBox(height: 20,)
