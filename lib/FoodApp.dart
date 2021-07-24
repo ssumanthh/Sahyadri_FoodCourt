@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/widgets/favourite.dart';
+import 'package:sahyadri_food_court/widgets/home_page.dart';
 import 'package:sahyadri_food_court/widgets/loader.dart';
+import 'package:sahyadri_food_court/widgets/orders.dart';
 import 'authentication/auth.dart';
 import 'widgets/foodcard.dart';
 
@@ -34,9 +36,8 @@ class _FoodAppState extends State<FoodApp> {
   //   "https://pngimage.net/wp-content/uploads/2018/06/sizzler-png-8.png",
   // ];
 
-  bool filter = false;
-  String filterType = '';
-  
+ 
+  int index =0;
   Widget _buildGride(QuerySnapshot? snapshot) {
     return GridView.builder(
         gridDelegate:
@@ -65,13 +66,8 @@ class _FoodAppState extends State<FoodApp> {
         print(e);
       }
     }
-    int index =widget.index;
-    checkIndex(int currentIndex) {
-    setState(() {
-      index = currentIndex;
-      filter = false;
-    });
-  }
+    
+   
 
     return Scaffold(
       backgroundColor: Color(0xFFFCFCFC),
@@ -104,114 +100,13 @@ class _FoodAppState extends State<FoodApp> {
 
       //Now let's build the body of our app
       body: index == 0
-          ? filter
-              ? StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection("food")
-                      .where(
-                        'type',
-                        isEqualTo: filterType,
-                      )
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    print(snapshot.data);
-                    if (!snapshot.hasData) return LinearProgressIndicator();
-                    if (snapshot.hasError) return CircularProgressIndicator();
-                    return _buildGride(snapshot.data);
-                  },
-                )
-              : Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //Let's create the welcoming Text
-                      Text(
-                        "Let's Enjoy the Food \n    Order your Food Now..",
-                        style: TextStyle(
-                          fontSize: 27.0,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Container(
-                        width: double.infinity,
-                        height: 50.0,
-                        decoration: BoxDecoration(
-                          color: Color(0x55d2d2d2),
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                                child: TextField(
-                              decoration: InputDecoration(
-                                hintText: "Search... ",
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.only(left: 20.0),
-                              ),
-                            )),
-                            RaisedButton(
-                              elevation: 3.0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                              onPressed: () {},
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 15.0),
-                                child: Icon(
-                                  Icons.search,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              color: Color(0xFFfc6a26),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 290),
-                        child: PopupMenuButton(
-                          child: Icon(Icons.filter_list_alt),
-                          itemBuilder: (BuildContext context) {
-                            return {'breakfast', 'meals'}.map((String choice) {
-                              return PopupMenuItem<String>(
-                                  value: choice, child: Button(choice));
-                            }).toList();
-                          },
-                        ),
-                      ),
-
-                      //build the food menu
-                      //I'm going to create a custom widget
-
-                      StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection("food")
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          print(snapshot.data);
-                          if (!snapshot.hasData)
-                            return LinearProgressIndicator();
-                          if (snapshot.hasError)
-                            return CircularProgressIndicator();
-                          return Expanded(child: _buildGride(snapshot.data));
-                        },
-                      )
-                    ],
-                  ),
-                )
+          ?  Home_page(auth: widget.auth)
           : index == 1
               ? favourite(
                   auth: widget.auth,
                 )
               : index == 2
-                  ? Loader()
+                  ? Orders(auth: widget.auth, fid: 'suma3')
                   : index == 3
                       ? Loader()
                       : null,
@@ -251,16 +146,12 @@ class _FoodAppState extends State<FoodApp> {
 
  
   }
-
-  Widget Button(String filtersType) {
-    return FlatButton(
-        onPressed: () {
-          setState(() {
-            print(filtersType);
-            filterType = filtersType;
-            filter = true;
-          });
-        },
-        child: Text(filtersType));
+   checkIndex(int currentIndex) {
+    setState(() {
+      index = currentIndex;
+      filter = false;
+    });
   }
+
+  
 }

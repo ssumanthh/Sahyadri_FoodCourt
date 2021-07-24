@@ -108,7 +108,6 @@ class _Food_DetailsState extends State<Food_Details> {
                       ),
                       IconButton(
                           onPressed: () {
-                            
                             setState(() {
                               count = count + 1;
                               price = price + widget.price * count;
@@ -124,12 +123,12 @@ class _Food_DetailsState extends State<Food_Details> {
                             setState(() {
                               if (count > 0) {
                                 count = count - 1;
-                                 price = price +widget. price * count;
+                                price = price + widget.price * count;
                               }
                             });
                           },
                           icon: Icon(Icons.remove)),
-                           Text(
+                      Text(
                         '$price',
                         style: TextStyle(fontSize: 18),
                       ),
@@ -139,19 +138,14 @@ class _Food_DetailsState extends State<Food_Details> {
                 child: Text('Orders'),
                 onPressed: () async {
                   await widget.auth.getfid().then((value) async {
-                   widget.auth
-                        .userOrder(fid, widget.name, count,price)
-                        .then((value) => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Orders(auth: widget.auth, fid: fid.toString())
-                              ),
-                            ));
+                    setState(() {
+                      fid = value;
+                    });
                   });
 
                   if (fid != null && fid != '') {
                     widget.auth
-                        .userOrder(fid, widget.name, count,price)
+                        .userOrder(fid, widget.name, count, price)
                         .then((value) => Navigator.push(
                               context,
                               MaterialPageRoute(

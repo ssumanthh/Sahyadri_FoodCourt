@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sahyadri_food_court/admin/admin_order.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
 import 'package:sahyadri_food_court/widgets/foodcard.dart';
 
@@ -143,7 +144,7 @@ class _AdminState extends State<Admin> {
       ),
 
       //Now let's build the body of our app
-      body: Padding(
+      body: index==0? Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -208,7 +209,7 @@ class _AdminState extends State<Admin> {
             )
           ],
         ),
-      ),
+      ):AdminOdrder(auth: widget.auth),
       
       // create the bottom bar
       bottomNavigationBar: BottomNavigationBar(
