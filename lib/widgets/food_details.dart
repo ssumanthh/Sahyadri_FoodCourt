@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
+import 'package:sahyadri_food_court/widgets/orders.dart';
 import 'package:sahyadri_food_court/widgets/primary_button.dart';
 
 class Food_Details extends StatefulWidget{
@@ -110,15 +111,20 @@ int count = 0;
                       count = count-1;
                   });
                 }, icon:Icon(Icons.remove)),
+                
                 ],
               )
      ),
-     FlatButton(child: Text('Order Now'),onPressed: (){
-       widget.auth.userOrder(widget.name, count);
-     },)
      
-     FlatButton(child: Text('Order Now'),onPressed: (){
-       widget.auth.userOrder(widget.name, count);
+     
+     FlatButton(child: Text('Orders'),onPressed: (){
+       widget.auth.userOrder(widget.name, count).then((value) => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Orders(auth:widget.auth),
+                        ),
+                      ));
+      
      },)
        ]
      )
