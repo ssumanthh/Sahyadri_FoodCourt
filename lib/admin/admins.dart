@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
-import 'package:sahyadri_food_court/foodcard.dart';
+import 'package:sahyadri_food_court/widgets/foodcard.dart';
 
 class Admin extends StatefulWidget {
   Admin({required this.auth, required this.onSignOut});

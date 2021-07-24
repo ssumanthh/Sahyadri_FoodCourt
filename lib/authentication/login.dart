@@ -60,11 +60,11 @@ class _LoginPageState extends State<LoginPage> {
       });
       //if user enters admin id then give error msg
       if (_email != 'foodcourt@gmail.com') {
-        
         try {
           String userId = _formType == FormType.login
               ? await widget.auth.signIn(_email!, _password!)
-              : await widget.auth.createUser(_name!,_fid!, _email!, _password!);
+              : await widget.auth
+                  .createUser(_name!, _fid!, _email!, _password!);
           setState(() {
             _authHint = 'Signed In\n\nUser id: $userId';
           });
@@ -122,6 +122,7 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
   }
+
   //change the form in the page to register page
   void moveToRegister() {
     formKey.currentState!.reset();
@@ -130,6 +131,7 @@ class _LoginPageState extends State<LoginPage> {
       _authHint = '';
     });
   }
+
 //change the form in the page to login page
   void moveToLogin() {
     formKey.currentState!.reset();
@@ -138,6 +140,7 @@ class _LoginPageState extends State<LoginPage> {
       _authHint = '';
     });
   }
+
 //text field change
   List<Widget> usernameAndPassword() {
     if (a == true) {
@@ -154,8 +157,8 @@ class _LoginPageState extends State<LoginPage> {
       }
       a = false;
     }
- 
-  //for login page style of text field and the display text
+
+    //for login page style of text field and the display text
     if (_formType == FormType.login) {
       return [
         SizedBox(height: 150),
@@ -550,7 +553,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding: EdgeInsets.all(20.0),
+                      padding: EdgeInsets.all(10.0),
                       child: Form(
                         key: formKey,
                         child: Column(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../home_page.dart';
+import '../FoodApp.dart';
 import 'login.dart';
 import '../admin/admins.dart';
 import 'auth.dart';
@@ -47,7 +47,7 @@ class _RootPageState extends State<RootPage> {
     });
   }
 
-  void _updateAuthStatus(AuthStatus status) {
+  void updateAuthStatus(AuthStatus status) {
     if (status != AuthStatus.notSignedIn) {
       widget.auth.currentUser().then((email) {
         print(email);
@@ -74,20 +74,21 @@ class _RootPageState extends State<RootPage> {
             title: ' Login',
             auth: widget.auth,
             type: widget.st,
-            onSignIn: () => _updateAuthStatus(AuthStatus.signedIn),
+            onSignIn: () => updateAuthStatus(AuthStatus.signedIn),
           );
         }
       case AuthStatus.admin:
         {
           return new Admin(
               auth: widget.auth,
-              onSignOut: () => _updateAuthStatus(AuthStatus.notSignedIn));
+              onSignOut: () => updateAuthStatus(AuthStatus.notSignedIn));
         }
       case AuthStatus.signedIn:
         {
           return new FoodApp(
             auth: widget.auth,
-            onSignOut: () => _updateAuthStatus(AuthStatus.notSignedIn),
+            onSignOut: () => updateAuthStatus(AuthStatus.notSignedIn),
+            index: 0,
           );
         }
     }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/widgets/food_details.dart';
-import 'authentication/auth.dart';
+import '../authentication/auth.dart';
 import 'package:flutter/rendering.dart';
 
 class Foodcard extends StatefulWidget{
@@ -36,7 +36,7 @@ class _FoodcardState extends State<Foodcard>{
     child:Container(
     child: Card(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(5.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,9 +51,9 @@ class _FoodcardState extends State<Foodcard>{
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(
-              height: 8.0,
-            ),
+            // SizedBox(
+            //   height: 2.0,
+            // ),
             Row(
               children: [
                 Expanded(

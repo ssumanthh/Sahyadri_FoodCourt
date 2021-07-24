@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
 import 'package:sahyadri_food_court/widgets/loader.dart';
 
-import '../foodcard.dart';
+import 'foodcard.dart';
 
 class favourite extends StatefulWidget {
   favourite({required this.auth});
