@@ -4,6 +4,8 @@ import 'package:sahyadri_food_court/authentication/auth.dart';
 import 'package:sahyadri_food_court/widgets/orders.dart';
 
 import '../FoodApp.dart';
+import 'loading_anim.dart';
+import 'order_done_anim.dart';
 
 class Food_Details extends StatefulWidget {
   Food_Details(
@@ -27,137 +29,147 @@ class _Food_DetailsState extends State<Food_Details> {
   int count = 0;
   String? fid = '';
   int price = 0;
+  bool loading = false;
+  bool done = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Food Court'),
+          backgroundColor: Color(0xFFfcfcfc),
+          title: Text(
+            "Food Court",
+            style: TextStyle(
+              color: Color(0xFFfc6a26),
+            ),
+          ),
         ),
         backgroundColor: Colors.white,
-        body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Image.network(
-                widget.img,
-                width: 650,
-                height: 400.0,
-              ),
-              Text(
-                widget.name,
-                style: TextStyle(
-                  decoration: TextDecoration.underline,
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Price:',
-                        style: TextStyle(
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.w600,
-                        ),
+        body: done
+            ? OrderDoneAnimPage()
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                    Image.network(
+                      widget.img,
+                      width: 650,
+                      height: 400.0,
+                    ),
+                    Text(
+                      widget.name,
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontSize: 32.0,
+                        fontWeight: FontWeight.w600,
                       ),
-                      Text(
-                        widget.price.toString(),
-                        style: TextStyle(
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ]),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Available:',
-                        style: TextStyle(
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        widget.available.toString(),
-                        style: TextStyle(
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ]),
-              ),
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Item Count:',
-                        style: TextStyle(
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              count = count + 1;
-                              price = price + widget.price * count;
-                            });
-                          },
-                          icon: Icon(Icons.add)),
-                      Text(
-                        '$count',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              if (count > 0) {
-                                count = count - 1;
-                                price = price + widget.price * count;
-                              }
-                            });
-                          },
-                          icon: Icon(Icons.remove)),
-                      Text(
-                        '$price',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ],
-                  )),
-              FlatButton(
-                child: Text('Orders'),
-                onPressed: () async {
-                  await widget.auth.getfid().then((value) async {
-                    setState(() {
-                      fid = value;
-                    });
-                  });
-
-                  if (fid != null && fid != '') {
-                    widget.auth
-                        .userOrder(fid, widget.name, count, price)
-                        .then((value) => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Orders(
-                                  auth: widget.auth,
-                                  fid: fid.toString(),
-                                ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Price:',
+                              style: TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
                               ),
-                            ));
-                  }
-                },
-              )
-            ]));
+                            ),
+                            Text(
+                              widget.price.toString(),
+                              style: TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ]),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Available:',
+                              style: TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              widget.available.toString(),
+                              style: TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ]),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Item Count:',
+                              style: TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    count = count + 1;
+                                    price = price + widget.price * count;
+                                  });
+                                },
+                                icon: Icon(Icons.add)),
+                            Text(
+                              '$count',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    if (count > 0) {
+                                      count = count - 1;
+                                      price = price + widget.price * count;
+                                    }
+                                  });
+                                },
+                                icon: Icon(Icons.remove)),
+                            Text(
+                              '$price',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        )),
+                    FlatButton(
+                      child: Text('Orders'),
+                      onPressed: () async {
+                        await widget.auth.getfid().then((value) async {
+                          setState(() {
+                            fid = value;
+                          });
+                        });
+
+                        if (fid != null && fid != '') {
+                          widget.auth
+                              .userOrder(fid, widget.name, count, price)
+                              .then((value) {
+                            setState(() {
+                              loading = false;
+                              done = true;
+                            });
+                            Future.delayed(const Duration(seconds: 2), () {
+                              Navigator.pop(context);
+                            });
+                          });
+                        }
+                      },
+                    )
+                  ]));
   }
 }

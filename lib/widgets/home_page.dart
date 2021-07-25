@@ -5,6 +5,7 @@ import 'package:sahyadri_food_court/authentication/auth.dart';
 import 'package:sahyadri_food_court/widgets/favourite.dart';
 import 'package:sahyadri_food_court/widgets/loader.dart';
 import 'foodcard.dart';
+import 'package:sahyadri_food_court/widgets/loding.dart';
 
 class Home_page extends StatefulWidget {
   Home_page({required this.auth});
@@ -137,7 +138,7 @@ class _Home_pageState extends State<Home_page> {
                         builder: (context, snapshot) {
                           print(snapshot.data);
                           if (!snapshot.hasData)
-                            return LinearProgressIndicator();
+                            return Loading();
                           if (snapshot.hasError)
                             return CircularProgressIndicator();
                           return Expanded(child: _buildGride(snapshot.data));

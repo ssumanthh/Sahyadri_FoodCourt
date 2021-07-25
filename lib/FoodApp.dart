@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/widgets/favourite.dart';
 import 'package:sahyadri_food_court/widgets/home_page.dart';
 import 'package:sahyadri_food_court/widgets/loader.dart';
+import 'package:sahyadri_food_court/widgets/loding.dart';
 import 'package:sahyadri_food_court/widgets/orders.dart';
 import 'authentication/auth.dart';
 import 'widgets/foodcard.dart';
@@ -25,7 +26,6 @@ enum AuthStatus {
 AuthStatus authStatus = AuthStatus.home;
 
 class _FoodAppState extends State<FoodApp> {
-  
   //here i'm going to place a list of image url
   // List<String> imgUrl = [
   //   "https://pngimage.net/wp-content/uploads/2018/06/idli-png-1.png",
@@ -36,8 +36,8 @@ class _FoodAppState extends State<FoodApp> {
   //   "https://pngimage.net/wp-content/uploads/2018/06/sizzler-png-8.png",
   // ];
 
- 
-  int index =0;
+  int index = 0;
+  String? fid = '';
   Widget _buildGride(QuerySnapshot? snapshot) {
     return GridView.builder(
         gridDelegate:
@@ -56,6 +56,14 @@ class _FoodAppState extends State<FoodApp> {
         });
   }
 
+  void getid() async {
+    await widget.auth.getfid().then((value) async {
+      setState(() {
+        fid = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     void _signOut() async {
@@ -66,8 +74,6 @@ class _FoodAppState extends State<FoodApp> {
         print(e);
       }
     }
-    
-   
 
     return Scaffold(
       backgroundColor: Color(0xFFFCFCFC),
@@ -100,15 +106,15 @@ class _FoodAppState extends State<FoodApp> {
 
       //Now let's build the body of our app
       body: index == 0
-          ?  Home_page(auth: widget.auth)
+          ? Home_page(auth: widget.auth)
           : index == 1
               ? favourite(
                   auth: widget.auth,
                 )
               : index == 2
-                  ? Orders(auth: widget.auth, fid: 'suma3')
+                  ? Orders(auth: widget.auth, fid: fid.toString())
                   : index == 3
-                      ? Loader()
+                      ? Loading()
                       : null,
 
       // create the bottom bar
@@ -141,17 +147,22 @@ class _FoodAppState extends State<FoodApp> {
         ],
       ),
     );
-
-     
-
- 
-  }
-   checkIndex(int currentIndex) {
-    setState(() {
-      index = currentIndex;
-      filter = false;
-    });
   }
 
-  
+  checkIndex(int currentIndex) async {
+    if (currentIndex == 2) {
+      await widget.auth.getfid().then((value) async {
+        setState(() {
+          fid = value;
+          index = currentIndex;
+          filter = false;
+        });
+      });
+    } else {
+      setState(() {
+        index = currentIndex;
+        filter = false;
+      });
+    }
+  }
 }

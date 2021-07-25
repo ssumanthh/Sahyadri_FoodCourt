@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
 import 'package:sahyadri_food_court/widgets/loader.dart';
+import 'package:sahyadri_food_court/widgets/loading_anim.dart';
 
 import 'foodcard.dart';
 
@@ -18,10 +19,13 @@ class _favouriteState extends State<favourite> {
   void initState() {
     super.initState();
     widget.auth.getfavFood().then((value) {
-      setState(() {
+      Future.delayed(const Duration(seconds: 2), () {
+         setState(() {
         favItems = value!;
         loading = false;
       });
+      });
+     
       print('hone$favItems');
     });
   }
@@ -43,7 +47,7 @@ class _favouriteState extends State<favourite> {
     
     return Scaffold(
         backgroundColor: Colors.white,
-        body: loading?Loader(): favItems.isEmpty?Center(child:Text('no data')): StreamBuilder<QuerySnapshot>(
+        body: loading?LoadingAnimPage(): favItems.isEmpty?Center(child:Text('no data')): StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection("food")
                         .where(

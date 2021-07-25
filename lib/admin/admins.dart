@@ -92,7 +92,7 @@ class _AdminState extends State<Admin> {
           textColor: Colors.black87,
           onPressed:(){
             print(availableControler.text);
-            FirebaseFirestore.instance.collection('food').doc(doc.id).set({'cost':int.parse(availableControler.text) }, SetOptions(merge: true)).then((value) => print("succues"));
+            FirebaseFirestore.instance.collection('food').doc(doc.id).set({'available':int.parse(availableControler.text) }, SetOptions(merge: true)).then((value) => print("succues"));
           }),
                           ],
                         ),

@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 abstract class BaseAuth {
   Future<String?> currentUseremail();
   Future<String?> currentUser();
-  Future<String?> getfid( );
+  Future<String?> getfid();
   Future<List<dynamic>?> getfavFood();
   Future<String> signIn(String email, String password);
   Future<String> createUser(
@@ -13,7 +13,7 @@ abstract class BaseAuth {
   Future<String?> addUserFav(String fname, String name, int i);
   Future<String?> deleteUserFav(String fname);
   Future<void> signOut();
-  Future<String?> userOrder(String? fid, String fname, int itemCount,int cost);
+  Future<String?> userOrder(String? fid, String fname, int itemCount, int cost);
   Future<List<dynamic>?> getorder(String fid);
 }
 
@@ -53,10 +53,9 @@ class Auth implements BaseAuth {
     User? user = await _firebaseAuth.currentUser;
     print(user);
     String? fid = '';
-   await username.doc(user!.uid).get().then((value) {
+    await username.doc(user!.uid).get().then((value) {
       fid = value.get('facultyid');
       print(fid);
-      
     });
     if (fid != '') {
       return fid;
@@ -82,20 +81,23 @@ class Auth implements BaseAuth {
     return user != null ? user.email : null;
   }
 
-  Future<String?> userOrder(String? fid, String fname, int itemCount,int price) async {
+  Future<String?> userOrder(
+      String? fid, String fname, int itemCount, int price) async {
     User? user = await _firebaseAuth.currentUser;
     print("fid:$fid\nname:$fname\ncount:$itemCount");
     FirebaseFirestore.instance
         .collection('orders')
         .doc(fid) // <-- Document ID
-        .set({
-          'orders': FieldValue.arrayUnion([
-            {'name': fname, 'itemCount': itemCount,'price':price}
-          ])
-        }, SetOptions( merge:true,)) // <-- Add data
+        .set(
+            {
+              'orders': FieldValue.arrayUnion([
+                {'name': fname, 'itemCount': itemCount, 'price': price}
+              ])
+            },
+            SetOptions(
+              merge: true,
+            )) // <-- Add data
         .then((_) => print('Added'))
-
-
         .catchError((error) => print('Add failed: $error'));
     return user != null ? user.email : null;
   }
@@ -130,18 +132,21 @@ class Auth implements BaseAuth {
   Future<List<dynamic>?> getorder(String fid) async {
     User? user = await _firebaseAuth.currentUser;
     List<dynamic>? u = [];
+    print(fid);
     await FirebaseFirestore.instance
         .collection('orders')
-        .doc(fid).get().then((task) => {
-          print(task),
-          if (task.exists)
-            {
-              print( task.get('orders') ),
-              u=task.get('orders'),
-               print(u),
-               // print(u![0]['name'])
-               }
-        });
+        .doc(fid)
+        .get()
+        .then((task) => {
+              print(task),
+              if (task.exists)
+                {
+                  print(task.get('orders')),
+                  u = task.get('orders'),
+                  print(u),
+                  // print(u![0]['name'])
+                }
+            });
     return u;
   }
 
