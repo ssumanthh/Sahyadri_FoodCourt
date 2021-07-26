@@ -9,11 +9,10 @@ class Loading extends StatefulWidget {
 class _LoadingAnimPageState extends State<Loading> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
+    return  Center(
         child: Container(
-          width: 80,
-          height: 80,
+          width: 180,
+          height: 180,
           child: Opacity(
             opacity: 0.8,
             child: Lottie.asset(
@@ -23,7 +22,7 @@ class _LoadingAnimPageState extends State<Loading> {
               animate: true,
             ),
           ),
-        ),
+        
       ),
     );
   }

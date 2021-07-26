@@ -5,9 +5,10 @@ import 'package:flutter/rendering.dart';
 
 class Foodcard extends StatefulWidget{
   Foodcard({
-    required this.auth, required this.img,required this.name, required this.price,required this.available,required this.added
+    required this.auth,required this.fd, required this.img,required this.name, required this.price,required this.available,required this.added
   });
   final BaseAuth auth;
+  final String fd;
   final String img;
   final String name;
   final int price;
@@ -28,7 +29,7 @@ class _FoodcardState extends State<Foodcard>{
                         context,
                         MaterialPageRoute(
                           builder: (context) => Food_Details(
-                            auth:widget.auth, img:widget.img, name:widget.name, price:widget.price,available:widget.available, added: true,
+                            auth:widget.auth,foodId: widget.fd, img:widget.img, name:widget.name, price:widget.price,available:widget.available, added: true,
                               ),
                         ),
                       );

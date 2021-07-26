@@ -141,26 +141,24 @@ class _Order_DetailsState extends State<Order_Details> {
                       .doc(widget.fid) // <-- Document ID
                       .set(
                           {
-                            'orders': FieldValue.arrayRemove([
-                              {
-                                'name': widget.name,
-                                'itemCount': widget.itemCount,
-                                'price': widget.price
-                              }
-                            ])
-                          },
+                        'orders': FieldValue.arrayRemove([
+                          {
+                            'name': widget.name,
+                            'itemCount': widget.itemCount,
+                            'price': widget.price
+                          }
+                        ])
+                      },
                           SetOptions(
                             merge: true,
                           )) // <-- Add data
-                      .then((_) => () {
-                        final snackBar = SnackBar(content: Text('Confirmed Order Successfull!!'));
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                            Navigator.pop(context);
-                          })
-                      .catchError((error) => (){
-                        final snackBar = SnackBar(content: Text(' Order Confirmation UnSuccessfull!!!'));
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      });
+                      .then((_) {
+                    print("done");
+                    final snackBar = SnackBar(backgroundColor: Color(0xFFf68634),  content: Text('Confirmed Order Successfull!!',style: TextStyle(color: Colors.white,),));
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    Navigator.pop(context);
+                    
+                  });
                 }),
           ],
         ));

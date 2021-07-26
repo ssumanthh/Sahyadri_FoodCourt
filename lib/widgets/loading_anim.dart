@@ -17,7 +17,7 @@ class _LoadingAnimPageState extends State<LoadingAnimPage> {
           child: Opacity(
             opacity: 0.8,
             child: Lottie.asset(
-              'assets/animation/faourite_loader.json',
+              'assets/animation/favourite_loader.json',
               repeat: true,
               reverse: true,
               animate: true,

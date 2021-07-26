@@ -48,6 +48,7 @@ class _FoodAppState extends State<FoodApp> {
 
           return Foodcard(
               auth: widget.auth,
+              fd: doc.id,
               img: doc['image'],
               name: doc['name'],
               price: doc['cost'],

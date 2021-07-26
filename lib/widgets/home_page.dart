@@ -33,6 +33,7 @@ class _Home_pageState extends State<Home_page> {
 
           return Foodcard(
               auth: widget.auth,
+              fd: doc.id,
               img: doc['image'],
               name: doc['name'],
               price: doc['cost'],
@@ -138,7 +139,7 @@ class _Home_pageState extends State<Home_page> {
                         builder: (context, snapshot) {
                           print(snapshot.data);
                           if (!snapshot.hasData)
-                            return Loading();
+                            return Expanded(child: Loading());
                           if (snapshot.hasError)
                             return CircularProgressIndicator();
                           return Expanded(child: _buildGride(snapshot.data));

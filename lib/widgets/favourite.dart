@@ -38,7 +38,7 @@ class _favouriteState extends State<favourite> {
         itemBuilder: (context, index) {
           final doc = snapshot.docs[index];
 
-          return Foodcard(auth:widget.auth, img:doc['image'], name:doc['name'], price:doc['cost'],available:doc['available'], added: true,);
+          return Foodcard(auth:widget.auth,fd: doc.id, img:doc['image'], name:doc['name'], price:doc['cost'],available:doc['available'], added: true,);
         });
   }
 

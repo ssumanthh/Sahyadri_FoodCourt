@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
 import 'package:sahyadri_food_court/widgets/orders.dart';
+import 'package:sahyadri_food_court/widgets/primary_button.dart';
 
 import '../FoodApp.dart';
 import 'loading_anim.dart';
@@ -11,11 +13,13 @@ class Food_Details extends StatefulWidget {
   Food_Details(
       {required this.auth,
       required this.img,
+      required this.foodId,
       required this.name,
       required this.price,
       required this.available,
       required this.added});
   final BaseAuth auth;
+  final String foodId;
   final String img;
   final String name;
   final int price;
@@ -29,7 +33,6 @@ class _Food_DetailsState extends State<Food_Details> {
   int count = 0;
   String? fid = '';
   int price = 0;
-  bool loading = false;
   bool done = false;
 
   @override
@@ -38,7 +41,7 @@ class _Food_DetailsState extends State<Food_Details> {
         appBar: AppBar(
           backgroundColor: Color(0xFFfcfcfc),
           title: Text(
-            "Food Court",
+            "Food Details",
             style: TextStyle(
               color: Color(0xFFfc6a26),
             ),
@@ -54,14 +57,17 @@ class _Food_DetailsState extends State<Food_Details> {
                     Image.network(
                       widget.img,
                       width: 650,
-                      height: 400.0,
+                      height: 320.0,
                     ),
-                    Text(
-                      widget.name,
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontSize: 32.0,
-                        fontWeight: FontWeight.w600,
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        widget.name,
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 32.0,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     Padding(
@@ -122,7 +128,7 @@ class _Food_DetailsState extends State<Food_Details> {
                                 onPressed: () {
                                   setState(() {
                                     count = count + 1;
-                                    price = price + widget.price * count;
+                                    price = widget.price * count;
                                   });
                                 },
                                 icon: Icon(Icons.add)),
@@ -135,38 +141,75 @@ class _Food_DetailsState extends State<Food_Details> {
                                   setState(() {
                                     if (count > 0) {
                                       count = count - 1;
-                                      price = price + widget.price * count;
+                                      price = widget.price * count;
                                     }
                                   });
                                 },
                                 icon: Icon(Icons.remove)),
-                            Text(
-                              '$price',
-                              style: TextStyle(fontSize: 18),
-                            ),
                           ],
                         )),
-                    FlatButton(
-                      child: Text('Orders'),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Total Price:',
+                              style: TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              price.toString(),
+                              style: TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ]),
+                    ),
+                    PrimaryButton(
+                      key: Key("order"),
+                      text: 'Order Now!!',
+                      height: 40,
                       onPressed: () async {
-                        await widget.auth.getfid().then((value) async {
-                          setState(() {
-                            fid = value;
-                          });
-                        });
-
-                        if (fid != null && fid != '') {
-                          widget.auth
-                              .userOrder(fid, widget.name, count, price)
-                              .then((value) {
+                        if (widget.available <= 0) {
+                          final snackBar =
+                              SnackBar(backgroundColor: Color(0xFFf68634),  padding:EdgeInsets.all(22),content: Text('Food Not Available',style: TextStyle(color: Colors.white, )));
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        } else {
+                          await widget.auth.getfid().then((value) async {
                             setState(() {
-                              loading = false;
-                              done = true;
-                            });
-                            Future.delayed(const Duration(seconds: 2), () {
-                              Navigator.pop(context);
+                              fid = value;
                             });
                           });
+
+                          if (fid != null && fid != '') {
+                            widget.auth
+                                .userOrder(fid, widget.name, count, price)
+                                .then((value) {
+                              int available = widget.available - count;
+                              FirebaseFirestore.instance
+                                  .collection('food')
+                                  .doc(widget.foodId)
+                                  .set({
+                                'available': available
+                              }, SetOptions(merge: true)).then(
+                                      (value) => print("succues"));
+                              setState(() {
+                                done = true;
+                              });
+                              Future.delayed(const Duration(seconds: 2), () {
+                                Navigator.pop(context);
+                              });
+                            }).catchError((error) {
+                              final snackBar = SnackBar(
+                                  content: Text(' Order UnSuccessfull!!!'));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            });
+                          }
                         }
                       },
                     )
