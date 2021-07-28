@@ -1,6 +1,7 @@
 // import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'auth.dart';
 import '../widgets/loader.dart';
 import '../widgets/primary_button.dart';
@@ -61,28 +62,46 @@ class _LoginPageState extends State<LoginPage> {
       //if user enters admin id then give error msg
       if (_email != 'foodcourt@gmail.com') {
         try {
-          String userId = _formType == FormType.login
-              ? await widget.auth.signIn(_email!, _password!)
-              : await widget.auth
-                  .createUser(_name!, _fid!, _email!, _password!);
-          setState(() {
-            _authHint = 'Signed In\n\nUser id: $userId';
-          });
-          print("done sigin");
-          widget.onSignIn();
+          String? userId = '';
+          if (_formType == FormType.login) {
+            userId = await widget.auth.signIn(_email!, _password!);
+          } else {
+            userId = await widget.auth
+                .createUser(_name!, _fid!, _email!, _password!);
+            setState(() {
+              _formType = FormType.login;
+              loading = false;
+            });
+            TextEditingController text = TextEditingController();
+            Alert(
+                    context: context,
+                    title: "Verify the Email ",
+                    desc: "Please Verify your Email Address")
+                .show();
+          }
+          print("$userId");
+          if (userId != null) {
+            widget.onSignIn();
+          }
         } catch (e) {
           setState(() {
             loading = false;
             _authHint = e.toString();
+            _authHint.contains('[firebase_auth/network-request-failed]')
+                ? _authHint = 'Check your Internet Connection!!'
+                : _authHint = 'Invalid userName or Password!!';
           });
           String msg;
           _formType == FormType.login
               ? msg = 'Login Failed'
               : msg = 'Registration Failed';
+          Alert(context: context, title: msg, desc: _authHint).show();
           print(e);
         }
       } else {
         loading = false;
+        Alert(context: context, title: 'Login Failed', desc: 'Invaild User')
+            .show();
       }
     } else {
       setState(() {
@@ -99,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
       });
       if (_email == 'foodcourt@gmail.com') {
         try {
-          String userId = await widget.auth.signIn(_email!, _password!);
+          String? userId = await widget.auth.signIn(_email!, _password!);
           setState(() {
             _authHint = 'Signed In\n\nUser id: $userId';
           });
@@ -109,12 +128,21 @@ class _LoginPageState extends State<LoginPage> {
           setState(() {
             loading = false;
             _authHint = e.toString();
+            _authHint.contains('[firebase_auth/network-request-failed]')
+                ? _authHint = 'Check your Internet Connection!!'
+                : _authHint = 'Invalid userName or Password!!';
           });
-
+          Alert(context: context, title: 'Login Failed', desc: _authHint)
+              .show();
           print(e);
         }
       } else {
         loading = false;
+        Alert(
+                context: context,
+                title: 'Login Failed',
+                desc: 'Invaild FoodCourt Admin')
+            .show();
       }
     } else {
       setState(() {
@@ -161,7 +189,8 @@ class _LoginPageState extends State<LoginPage> {
     //for login page style of text field and the display text
     if (_formType == FormType.login) {
       return [
-        SizedBox(height: 150),
+        SizedBox(height: 100,
+        child: Image(image: AssetImage('assets/images/sahyadriLogo.jpg'),),),
         new Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -233,41 +262,96 @@ class _LoginPageState extends State<LoginPage> {
                   )),
               Padding(
                 padding: EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 20.0),
-                child: new TextFormField(
-                  key: new Key('password'),
-                  decoration: InputDecoration(
-                    hintText: 'Enter Your password Here...',
-                    prefixIcon: Icon(
-                      Icons.enhanced_encryption,
-                      color: Color(0xFFf68634),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    new TextFormField(
+                      key: new Key('password'),
+                      decoration: InputDecoration(
+                        hintText: 'Enter Your password Here...',
+                        prefixIcon: Icon(
+                          Icons.enhanced_encryption,
+                          color: Color(0xFFf68634),
+                        ),
+                        hintStyle: TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.white70,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                          borderSide:
+                              BorderSide(color: Color(0xFFf68634), width: 1),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          borderSide:
+                              BorderSide(color: Color(0xFFf68634), width: 1),
+                        ),
+                      ),
+                      obscureText: true,
+                      autocorrect: false,
+                      validator: (val) =>
+                          val!.isEmpty ? 'Password can\'t be empty.' : null,
+                      onSaved: (val) => _password = val,
                     ),
-                    hintStyle: TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.white70,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                      borderSide:
-                          BorderSide(color: Color(0xFFf68634), width: 1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide:
-                          BorderSide(color: Color(0xFFf68634), width: 1),
-                    ),
-                  ),
-                  obscureText: true,
-                  autocorrect: false,
-                  validator: (val) =>
-                      val!.isEmpty ? 'Password can\'t be empty.' : null,
-                  onSaved: (val) => _password = val,
+                    TextButton(
+                        onPressed: () {
+                          TextEditingController text =
+                              new TextEditingController();
+                          Alert(
+                                  buttons: [
+                                DialogButton(
+                                    child: Text("submit"),
+                                    onPressed: () {
+                                      if (text.text.isNotEmpty) {
+                                        print("true");
+                                        widget.auth.resetPassword(text.text);
+                                      }
+                                    }),
+                              ],
+                                  content: TextField(
+                                    controller: text,
+                                    decoration: InputDecoration(
+                                        hintText: "Enter email id"),
+                                  ),
+                                  context: context,
+                                  title: "Reset Password ",
+                                  desc:
+                                      "Please Enter email address to send link")
+                              .show();
+                        },
+                        child: Text(
+                          "Forget password?",
+                          style: TextStyle(color: Colors.black),
+                        ))
+                  ],
                 ),
               ),
+              // TextButton(
+              //     onPressed: () async{
+              //      bool check= await widget.auth.verifEmail();
+              //      if(check){
+              //         final snackBar = SnackBar(
+              //                     backgroundColor: Color(0xFFf68634),
+              //                     padding: EdgeInsets.all(15),
+              //                     content:
+              //                         Text('Email sent succussfully',
+              //                             style: TextStyle(
+              //                               color: Colors.white,
+              //                             )));
+              //                 ScaffoldMessenger.of(context)
+              //                     .showSnackBar(snackBar);
+              //      }
+              //     }, child: Text("Resend Email Verification?"))
             ])))
       ];
     } else {
       //for register page style of text field and the display text
       return [
-        SizedBox(height: 150),
+        SizedBox(
+            height: 100,
+            child: Image(
+              image: AssetImage('assets/images/sahyadriLogo.jpg'),
+            )),
         new Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -335,8 +419,8 @@ class _LoginPageState extends State<LoginPage> {
                   autocorrect: false,
                   validator: (val) => val!.isEmpty
                       ? 'Username can\'t be empty.'
-                      : val.length < 2
-                          ? 'user name must be at least 2 charecter long'
+                      : val.length < 4
+                          ? 'user name must be at least 4 charecter long'
                           : null,
                   onSaved: (val) => _name = val,
                 ),
@@ -367,9 +451,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   autocorrect: false,
                   validator: (val) => val!.isEmpty
-                      ? 'Username can\'t be empty.'
-                      : val.length < 2
-                          ? 'user name must be at least 2 charecter long'
+                      ? 'Faculty Id can\'t be empty.'
+                      : val.length < 6
+                          ? 'Enter valid Faculty Id'
                           : null,
                   onSaved: (val) => _fid = val,
                 ),
@@ -399,8 +483,12 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   autocorrect: false,
-                  validator: (val) =>
-                      val!.isEmpty ? 'Email can\'t be empty.' : null,
+                  validator: (val) => val!.isEmpty
+                      ? 'Email can\'t be empty.'
+                      : !(val.contains(
+                              RegExp(r"\.(is18|cs|is|ec|aptra)@sahyadri\.edu\.in$")))
+                          ? 'Unauthorized user Email'
+                          : null,
                   onSaved: (val) => _email = val,
                 ),
               ),
@@ -430,8 +518,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   obscureText: true,
                   autocorrect: false,
-                  validator: (val) =>
-                      val!.isEmpty ? 'Password can\'t be empty.' : null,
+                  validator: (val) => val!.isEmpty
+                      ? 'Password can\'t be empty.'
+                      : !(val.contains(RegExp(
+                              r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$")))
+                          ? 'Password must contain min 8 charecters\n(letters+special symbols+numbers)'
+                          : null,
                   onSaved: (val) => _password = val,
                 ),
               ),
