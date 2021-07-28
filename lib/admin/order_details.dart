@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
+import 'package:sahyadri_food_court/widgets/loding.dart';
 import 'package:sahyadri_food_court/widgets/primary_button.dart';
 
 class Order_Details extends StatefulWidget {
@@ -25,7 +27,7 @@ class _Order_DetailsState extends State<Order_Details> {
   int count = 0;
   String? fid = '';
   int price = 0;
-
+bool loading=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +35,7 @@ class _Order_DetailsState extends State<Order_Details> {
           title: Text('Order Details'),
         ),
         backgroundColor: Colors.white,
-        body: Column(
+        body:loading?Loading(): Column(
           children: [
             Container(
               margin: EdgeInsets.fromLTRB(8.0, 180, 8.0, 50),
@@ -136,29 +138,49 @@ class _Order_DetailsState extends State<Order_Details> {
                 height: 40,
                 onPressed: () {
                   print(widget.fid);
-                  FirebaseFirestore.instance
-                      .collection('orders')
-                      .doc(widget.fid) // <-- Document ID
-                      .set(
-                          {
-                        'orders': FieldValue.arrayRemove([
-                          {
-                            'name': widget.name,
-                            'itemCount': widget.itemCount,
-                            'price': widget.price
-                          }
-                        ])
-                      },
-                          SetOptions(
-                            merge: true,
-                          )) // <-- Add data
-                      .then((_) {
-                    print("done");
-                    final snackBar = SnackBar(backgroundColor: Color(0xFFf68634),  content: Text('Confirmed Order Successfull!!',style: TextStyle(color: Colors.white,),));
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    Navigator.pop(context);
-                    
-                  });
+                  try {
+                    FirebaseFirestore.instance
+                        .collection('orders')
+                        .doc(widget.fid) // <-- Document ID
+                        .set(
+                            {
+                          'orders': FieldValue.arrayRemove([
+                            {
+                              'name': widget.name,
+                              'itemCount': widget.itemCount,
+                              'price': widget.price
+                            }
+                          ])
+                        },
+                            SetOptions(
+                              merge: true,
+                            )) // <-- Add data
+                        .then((_) {
+                      setState(() {
+                        loading = true;
+                      });
+                      print("done");
+                      final snackBar = SnackBar(
+                          backgroundColor: Color(0xFFf68634),
+                          content: Text(
+                            'Confirmed Order Successfull!!',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ));
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      Navigator.pop(context);
+                    }).onError((error, stackTrace) {
+                      Alert(
+                              context: context,
+                              title: 'Login Failed',
+                              desc: '$error')
+                          .show();
+                    });
+                  } catch (e) {
+                    Alert(context: context, title: 'Login Failed', desc: '$e')
+                        .show();
+                  }
                 }),
           ],
         ));
