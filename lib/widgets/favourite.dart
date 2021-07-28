@@ -47,7 +47,12 @@ class _favouriteState extends State<favourite> {
     
     return Scaffold(
         backgroundColor: Colors.white,
-        body: loading?LoadingAnimPage(): favItems.isEmpty?Center(child:Text('no data')): StreamBuilder<QuerySnapshot>(
+        body: loading?LoadingAnimPage(): favItems.isEmpty?Center(child:Text('No Favourites Added',
+             style: TextStyle(
+               color: Color(0xFFfc6a26),
+                                    fontSize: 22.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),)): StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection("food")
                         .where(
