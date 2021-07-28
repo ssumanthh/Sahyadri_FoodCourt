@@ -1,11 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sahyadri_food_court/widgets/about_us.dart';
 import 'package:sahyadri_food_court/widgets/favourite.dart';
 import 'package:sahyadri_food_court/widgets/home_page.dart';
-import 'package:sahyadri_food_court/widgets/loader.dart';
-import 'package:sahyadri_food_court/widgets/loding.dart';
 import 'package:sahyadri_food_court/widgets/orders.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'authentication/auth.dart';
 import 'widgets/foodcard.dart';
 
@@ -38,30 +37,31 @@ class _FoodAppState extends State<FoodApp> {
 
   int index = 0;
   String? fid = '';
-  Widget _buildGride(QuerySnapshot? snapshot) {
-    return GridView.builder(
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        itemCount: snapshot!.docs.length,
-        itemBuilder: (context, index) {
-          final doc = snapshot.docs[index];
+  String email = '';
+  String name = '';
 
-          return Foodcard(
-              auth: widget.auth,
-              fd: doc.id,
-              img: doc['image'],
-              name: doc['name'],
-              price: doc['cost'],
-              available: doc['available'],
-              added: false);
-        });
-  }
-
+  
   void getid() async {
     await widget.auth.getfid().then((value) async {
       setState(() {
         fid = value;
       });
+    });
+  }
+
+  void _launchURL(String url) async {
+    String _url = url;
+    await canLaunch(_url) ? await launch(_url) : throw 'Could not launch $_url';
+  }
+
+  void initState() {
+    super.initState();
+    widget.auth.currentUseremail().then((value) {
+      email = value.toString();
+    });
+    getid();
+    widget.auth.getname().then((value) {
+      name = value.toString();
     });
   }
 
@@ -87,24 +87,101 @@ class _FoodAppState extends State<FoodApp> {
             color: Color(0xFFfc6a26),
           ),
         ),
-        actions: <Widget>[
-          RaisedButton(
-              child: new Text('signout'),
-              onPressed: () {
-                _signOut();
-              }),
-        ],
         centerTitle: true,
         elevation: 0.0,
-        leading: IconButton(
-          onPressed: () {},
-          icon: Icon(
-            Icons.menu,
-            color: Colors.black,
-          ),
-        ),
       ),
-
+      drawer: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(50),
+            bottomRight: Radius.circular(50),
+          ),
+          child: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(color: Color(0xFFfc6a26)),
+                  accountName: Text(name),
+                  accountEmail: Text(email),
+                  currentAccountPicture: CircleAvatar(
+                    child: Icon(Icons.person)
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.person,
+                    color: Color(0xFFfc6a26),
+                  ),
+                  title: Text("Account"),
+                  subtitle: Text("Faculty Id:$fid"),
+                  trailing: Icon(Icons.edit),
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.email,
+                    color: Color(0xFFfc6a26),
+                  ),
+                  title: Text("Email"),
+                  subtitle: Text(email),
+                  trailing: Icon(Icons.send),
+                  onTap: () {
+                    final Uri params = Uri(
+                      scheme: 'mailto',
+                      path: 'sumanth.is18@sahadri.edu.in',
+                    );
+                    _launchURL(params.toString());
+                  },
+                ),
+                ListTile(
+                    title: new Row(children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Color(0xFFfc6a26),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                        child: Text(
+                          'About Us',
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                      )
+                    ]),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AbooutUs()),
+                      );
+                    }),
+                ListTile(
+                  title: new Row(children: [
+                    Icon(
+                      Icons.exit_to_app,
+                      color: Color(0xFFfc6a26),
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                      child: Text(
+                        'logOut',
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ]),
+                  onTap: () {
+                    _signOut();
+                  },
+                ),
+              ],
+            ),
+          )),
       //Now let's build the body of our app
       body: index == 0
           ? Home_page(auth: widget.auth)
@@ -114,9 +191,7 @@ class _FoodAppState extends State<FoodApp> {
                 )
               : index == 2
                   ? Orders(auth: widget.auth, fid: fid.toString())
-                  : index == 3
-                      ? Loading()
-                      : null,
+                   : null,
 
       // create the bottom bar
       bottomNavigationBar: BottomNavigationBar(
@@ -141,29 +216,17 @@ class _FoodAppState extends State<FoodApp> {
             icon: Icon(Icons.shopping_cart),
             title: Text("Cart"),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            title: Text("Profile"),
-          )
         ],
       ),
     );
   }
 
   checkIndex(int currentIndex) async {
-    if (currentIndex == 2) {
-      await widget.auth.getfid().then((value) async {
-        setState(() {
-          fid = value;
-          index = currentIndex;
-          filter = false;
-        });
-      });
-    } else {
+   
       setState(() {
         index = currentIndex;
         filter = false;
       });
-    }
+    
   }
 }
