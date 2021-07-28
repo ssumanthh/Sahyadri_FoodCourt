@@ -29,6 +29,8 @@ dependencies:
   firebase_database:
   firestore_search: ^0.1.3
   lottie:
+  url_launcher: any
+  rflutter_alert:
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -55,6 +57,9 @@ flutter:
     - assets/animation/loading_dish.json
     - assets/animation/favourite_loader.json
     - assets/animation/order_done.json
+    - assets/images/sahyadriLogo.jpg
+    - assets/images/sumanth.jpg
+    - assets/images/rakshith.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
