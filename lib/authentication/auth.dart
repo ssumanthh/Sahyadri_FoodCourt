@@ -6,15 +6,18 @@ abstract class BaseAuth {
   Future<String?> currentUseremail();
   Future<String?> currentUser();
   Future<String?> getfid();
+  Future<String?> getname();
   Future<List<dynamic>?> getfavFood();
-  Future<String> signIn(String email, String password);
-  Future<String> createUser(
+  Future<String?> signIn(String email, String password);
+  Future<String?> createUser(
       String name, String fid, String email, String password);
-  Future<String?> addUserFav(String fname, String name, int i);
+  Future<String?> addUserFav(String fname);
   Future<String?> deleteUserFav(String fname);
   Future<void> signOut();
   Future<String?> userOrder(String? fid, String fname, int itemCount, int cost);
   Future<List<dynamic>?> getorder(String fid);
+  Future<bool> verifEmail();
+  Future<void> resetPassword(String email);
 }
 
 class Auth implements BaseAuth {
@@ -23,22 +26,35 @@ class Auth implements BaseAuth {
       FirebaseFirestore.instance.collection('name');
 
   //signIn method
-  Future<String> signIn(String email, String password) async {
+  Future<String?> signIn(String email, String password) async {
     final User? user = (await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password))
         .user;
-    return user!.uid;
+    return user!.emailVerified ? user.uid : null;
+  }
+
+  Future<bool> verifEmail() async {
+    User? user = await _firebaseAuth.currentUser;
+    bool? d;
+    await user!.sendEmailVerification().then((value) => d = true);
+    return d!;
   }
 
 //Register user details
-  Future<String> createUser(
+  Future<String?> createUser(
       String name, String fid, String email, String password) async {
     final UserCredential result = await FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: password);
     User? user = result.user;
     print(fid);
-    await username.doc(user!.uid).set({'username': name, 'facultyid': fid});
-    return user.uid;
+    await username.doc(user!.uid).set({
+      'username': name,
+      'facultyid': fid,
+      'favFood': [],
+    });
+
+    await user.sendEmailVerification();
+    return user.emailVerified ? user.uid : null;
   }
 
   @override
@@ -46,7 +62,15 @@ class Auth implements BaseAuth {
   Future<String?> currentUser() async {
     User? user = await _firebaseAuth.currentUser;
     print(user);
-    return user != null ? user.uid : null;
+    return user != null
+        ? user.emailVerified
+            ? user.uid
+            : null
+        : null;
+  }
+
+  Future<void> resetPassword(String email) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 
   Future<String?> getfid() async {
@@ -62,6 +86,19 @@ class Auth implements BaseAuth {
     }
   }
 
+  Future<String?> getname() async {
+    User? user = await _firebaseAuth.currentUser;
+    print(user);
+    String? fid = '';
+    await username.doc(user!.uid).get().then((value) {
+      fid = value.get('username');
+      print(fid);
+    });
+    if (fid != '') {
+      return fid;
+    }
+  }
+
 //get current user mail address
   Future<String?> currentUseremail() async {
     User? user = await _firebaseAuth.currentUser;
@@ -69,7 +106,7 @@ class Auth implements BaseAuth {
   }
 
 //add user's fav food to database
-  Future<String?> addUserFav(String fname, String name, int i) async {
+  Future<String?> addUserFav(String fname) async {
     User? user = await _firebaseAuth.currentUser;
     username
         .doc(user!.uid) // <-- Document ID
