@@ -1,12 +1,9 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/admin/order_details.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
-import 'package:sahyadri_food_court/widgets/favourite.dart';
-import 'package:sahyadri_food_court/widgets/loader.dart';
+import 'package:sahyadri_food_court/widgets/loding.dart';
 
 class AdminOdrder extends StatefulWidget {
   AdminOdrder({required this.auth});
@@ -19,24 +16,25 @@ class _AdminOdrderState extends State<AdminOdrder> {
   List<dynamic> orders = [];
   List<Map<String, dynamic>> orderdetails = [];
   bool loading = true;
+  bool load = false;
+  List name = [];
+
   TextEditingController getOrderController = TextEditingController();
 
   void readData() async {
     print(getOrderController.text);
-                        widget.auth
-                            .getorder(getOrderController.text)
-                            .then((value) {
-                          print(value);
-                          setState(() {
-                            orders = value!;
-                            loading = false;
-                            orderdetails = [];
-                            orders.forEach((element) {
-                              orderdetails.add(element);
-                            });
-                          });
-                          print('hone$orderdetails');
-                        });
+    widget.auth.getorder(getOrderController.text).then((value) {
+      print(value);
+      setState(() {
+        orders = value!;
+        load = false;
+        orderdetails = [];
+        orders.forEach((element) {
+          orderdetails.add(element);
+        });
+      });
+      print('hone$orderdetails');
+    });
   }
 
   FutureOr onGoBack(dynamic value) {
@@ -44,134 +42,95 @@ class _AdminOdrderState extends State<AdminOdrder> {
     setState(() {});
   }
 
+  Future<String?> getname(String id) async {
+    String? fid = '';
+    await FirebaseFirestore.instance
+        .collection('name')
+        .where("facultyid", isEqualTo: id)
+        .get()
+        .then((value) {
+      print(value.docs[0].get("username"));
+      fid = value.docs[0].get("username");
+      setState(() {
+        name.add(fid);
+      });
+    });
+
+    if (fid != '') {
+      return fid;
+    }
+  }
+
+  Widget _buildGride(QuerySnapshot? snapshot) {
+    return ListView.builder(
+        itemCount: snapshot!.docs.length,
+        itemBuilder: (context, index) {
+          final doc = snapshot.docs[index];
+
+          print(name);
+          return doc.get('orders').toString() != '[]'
+              ? GestureDetector(
+                  child: Card(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        ListTile(
+                          title: Text(
+                            doc.id,
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    List b = doc['orders'];
+                    print(b);
+                     Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                    Order_Details(auth: widget.auth, orders:b, id: doc.id,),));
+                  },
+                )
+              : SizedBox(
+                  height: 0,
+                );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFFCFCFC),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //Let's create the welcoming Text
-              Text(
-                "Hello Admin \n ",
-                style: TextStyle(
-                  fontSize: 27.0,
-                  fontWeight: FontWeight.w700,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Color(0xFFFCFCFC),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //Let's create the welcoming Text
+               
+                SizedBox(
+                  height: 20.0,
                 ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: 50.0,
-                decoration: BoxDecoration(
-                  color: Color(0x55d2d2d2),
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: TextField(
-                      controller: getOrderController,
-                      decoration: InputDecoration(
-                        hintText: "Search... ",
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.only(left: 20.0),
-                      ),
-                    )),
-                    RaisedButton(
-                      elevation: 3.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      onPressed: () {
-                        readData();
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 15.0),
-                        child: Icon(
-                          Icons.search,
-                          color: Colors.white,
-                        ),
-                      ),
-                      color: Color(0xFFfc6a26),
-                    ),
-                  ],
-                ),
-              ),
-              loading
-                  ? Center(
-                      child: Text(
-                        "Enter the Order id to check",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    )
-                  : orderdetails.isEmpty
-                      ? Center(child: Text('no data'))
-                      : Flexible(
-                          child: ListView.builder(
-                            itemCount: orders.length,
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Order_Details(
-                                                auth: widget.auth,
-                                                fid: getOrderController.text,
-                                                name: orderdetails[index]
-                                                    ['name'],
-                                                itemCount: orderdetails[index]
-                                                    ['itemCount'],
-                                                price: orderdetails[index]
-                                                    ['price'],
-                                              ))).then(onGoBack);
-                                },
-                                child: Container(
-                                  child: Card(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: ListTile(
-                                      title: Text(
-                                        orderdetails[index]['name'],
-                                        style: TextStyle(fontSize: 21),
-                                      ),
-                                      subtitle: Column(
-                                        children: [
-                                          Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text('Number of Items'),
-                                                Text(orderdetails[index]
-                                                        ['itemCount']
-                                                    .toString()),
-                                              ]),
-                                          Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text('Price'),
-                                                Text(
-                                                    "${orderdetails[index]['price'].toString()} ₹"),
-                                              ]),
-                                        ],
-                                      ),
-                                    ),
-                                  )),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-            ]),
+                
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("orders")
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return CircularProgressIndicator();
+                    if (snapshot.hasError) return CircularProgressIndicator();
+                    return Expanded(child: _buildGride(snapshot.data));
+                  },
+                )
+              ]),
+        ),
       ),
     );
   }
