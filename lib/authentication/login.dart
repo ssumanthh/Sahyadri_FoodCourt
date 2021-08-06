@@ -1,5 +1,6 @@
 // import 'dart:async';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'auth.dart';
@@ -39,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   String? _email;
   String? _password;
   bool loading = false;
+  bool showPassword = false;
 
   FormType _formType = FormType.login;
   String _authHint = '';
@@ -60,89 +62,55 @@ class _LoginPageState extends State<LoginPage> {
         loading = true;
       });
       //if user enters admin id then give error msg
-      if (_email != 'foodcourt@gmail.com') {
-        try {
-          String? userId = '';
-          if (_formType == FormType.login) {
-            userId = await widget.auth.signIn(_email!, _password!);
-          } else {
-            userId = await widget.auth
-                .createUser(_name!, _fid!, _email!, _password!);
-            setState(() {
-              _formType = FormType.login;
-              loading = false;
-            });
-            TextEditingController text = TextEditingController();
-            Alert(
-                    context: context,
-                    title: "Verify the Email ",
-                    desc: "Please Verify your Email Address")
-                .show();
-          }
-          print("$userId");
-          if (userId != null) {
-            widget.onSignIn();
-          }
-        } catch (e) {
-          setState(() {
-            loading = false;
-            _authHint = e.toString();
-            _authHint.contains('[firebase_auth/network-request-failed]')
-                ? _authHint = 'Check your Internet Connection!!'
-                : _authHint = 'Invalid userName or Password!!';
-          });
-          String msg;
-          _formType == FormType.login
-              ? msg = 'Login Failed'
-              : msg = 'Registration Failed';
-          Alert(context: context, title: msg, desc: _authHint).show();
-          print(e);
-        }
-      } else {
-        loading = false;
-        Alert(context: context, title: 'Login Failed', desc: 'Invaild User')
-            .show();
-      }
-    } else {
-      setState(() {
-        _authHint = '';
-      });
-    }
-  }
 
-  void validateAndCheck() async {
-    //login as admin only
-    if (validateAndSave()) {
-      setState(() {
-        loading = true;
-      });
-      if (_email == 'foodcourt@gmail.com') {
-        try {
-          String? userId = await widget.auth.signIn(_email!, _password!);
+      try {
+        String? userId = '';
+        if (_formType == FormType.login) {
+          userId = await widget.auth.signIn(_email!, _password!);
+        } else {
+          userId =
+              await widget.auth.createUser(_name!, _fid!, _email!, _password!);
           setState(() {
-            _authHint = 'Signed In\n\nUser id: $userId';
+            _formType = FormType.login;
+            showPassword = false;
+            loading = false;
           });
-          print("done sigin");
+          
+          Alert(
+                  context: context,
+                  title: "Verify your Email Address ",
+                  desc: "Mail has been sent to the registered email id")
+              .show();
+        }
+        print("$userId");
+        if (userId != null) {
           widget.onSignIn();
-        } catch (e) {
+        } else {
           setState(() {
             loading = false;
-            _authHint = e.toString();
-            _authHint.contains('[firebase_auth/network-request-failed]')
-                ? _authHint = 'Check your Internet Connection!!'
-                : _authHint = 'Invalid userName or Password!!';
+            showPassword = false;
+            _formType = FormType.login;
           });
-          Alert(context: context, title: 'Login Failed', desc: _authHint)
+          Alert(
+                  context: context,
+                  title: "Verify your Email Address ",
+                  desc: "Please verify your email id")
               .show();
-          print(e);
         }
-      } else {
-        loading = false;
-        Alert(
-                context: context,
-                title: 'Login Failed',
-                desc: 'Invaild FoodCourt Admin')
-            .show();
+      } catch (e) {
+        setState(() {
+          loading = false;
+          _authHint = e.toString();
+          _authHint.contains('[firebase_auth/network-request-failed]')
+              ? _authHint = 'Check your Internet Connection!!'
+              : _authHint = 'Invalid userName or Password!!';
+        });
+        String msg;
+        _formType == FormType.login
+            ? msg = 'Login Failed'
+            : msg = 'Registration Failed';
+        Alert(context: context, title: msg, desc: _authHint).show();
+        print(e);
       }
     } else {
       setState(() {
@@ -156,6 +124,7 @@ class _LoginPageState extends State<LoginPage> {
     formKey.currentState!.reset();
     setState(() {
       _formType = FormType.register;
+      showPassword = false;
       _authHint = '';
     });
   }
@@ -165,6 +134,7 @@ class _LoginPageState extends State<LoginPage> {
     formKey.currentState!.reset();
     setState(() {
       _formType = FormType.login;
+      showPassword = false;
       _authHint = '';
     });
   }
@@ -189,15 +159,19 @@ class _LoginPageState extends State<LoginPage> {
     //for login page style of text field and the display text
     if (_formType == FormType.login) {
       return [
-        SizedBox(height: 100,
-        child: Image(image: AssetImage('assets/images/sahyadriLogo.jpg'),),),
+        SizedBox(
+          height: 50,
+          child: Image(
+            image: AssetImage('assets/images/sahyadrilogo.jpg'),
+          ),
+        ),
         new Container(
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
                 color: Colors.white,
               ),
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+              borderRadius: BorderRadius.all(Radius.circular(21)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.5),
@@ -207,25 +181,25 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-            child: new SafeArea(
+            child: new SingleChildScrollView(
                 child: Column(children: <Widget>[
               Padding(
-                padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+                padding: EdgeInsets.fromLTRB(19.0, 20.0, 20.0, 10.0),
                 child: new Row(
                   children: [
-                    Text(
+                    AutoSizeText(
                       'Sign in',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: 18,
                         color: Color(0xFFf68634),
                       ),
                     ),
-                    Text(
+                    AutoSizeText(
                       ' to your account',
                       style: TextStyle(
                         color: Colors.grey,
-                        fontSize: 20,
+                        fontSize: 18,
                       ),
                     ),
                   ],
@@ -269,6 +243,19 @@ class _LoginPageState extends State<LoginPage> {
                       key: new Key('password'),
                       decoration: InputDecoration(
                         hintText: 'Enter Your password Here...',
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              showPassword = !showPassword;
+                            });
+                          },
+                          icon: Icon(
+                            showPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                        ),
                         prefixIcon: Icon(
                           Icons.enhanced_encryption,
                           color: Color(0xFFf68634),
@@ -287,7 +274,7 @@ class _LoginPageState extends State<LoginPage> {
                               BorderSide(color: Color(0xFFf68634), width: 1),
                         ),
                       ),
-                      obscureText: true,
+                      obscureText: !showPassword,
                       autocorrect: false,
                       validator: (val) =>
                           val!.isEmpty ? 'Password can\'t be empty.' : null,
@@ -348,11 +335,12 @@ class _LoginPageState extends State<LoginPage> {
       //for register page style of text field and the display text
       return [
         SizedBox(
-            height: 100,
+            height: 50,
             child: Image(
-              image: AssetImage('assets/images/sahyadriLogo.jpg'),
+              image: AssetImage('assets/images/sahyadrilogo.jpg'),
             )),
         new Container(
+            height: 340,
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
@@ -364,17 +352,18 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.grey.withOpacity(0.5),
                   spreadRadius: 2,
                   blurRadius: 6,
-                  offset: Offset(0, 1), // changes position of shadow
+                  offset: Offset(0, 0.5), // changes position of shadow
                 ),
               ],
             ),
-            child: new SafeArea(
+            child: new SingleChildScrollView(
                 child: Column(children: <Widget>[
               Padding(
-                padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+                padding: EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
                 child: new Row(
                   children: [
-                    Text(
+                    SizedBox(height: 10),
+                    AutoSizeText(
                       'Create',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -382,7 +371,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: Color(0xFFf68634),
                       ),
                     ),
-                    Text(
+                    AutoSizeText(
                       ' your account',
                       style: TextStyle(
                         color: Colors.grey,
@@ -452,8 +441,9 @@ class _LoginPageState extends State<LoginPage> {
                   autocorrect: false,
                   validator: (val) => val!.isEmpty
                       ? 'Faculty Id can\'t be empty.'
-                      : val.length < 6
-                          ? 'Enter valid Faculty Id'
+                      : !(val.contains(
+                              RegExp(r"^(FA|fa|NT|nt)([0-9]{4}|[0-9]{3})$")))
+                          ? 'Invaild Faculty Id'
                           : null,
                   onSaved: (val) => _fid = val,
                 ),
@@ -485,8 +475,8 @@ class _LoginPageState extends State<LoginPage> {
                   autocorrect: false,
                   validator: (val) => val!.isEmpty
                       ? 'Email can\'t be empty.'
-                      : !(val.contains(
-                              RegExp(r"\.(is18|cs|is|ec|aptra)@sahyadri\.edu\.in$")))
+                      : !(val.contains(RegExp(
+                              r"\.(is18|cs|is|ec|aptra)@sahyadri\.edu\.in$")))
                           ? 'Unauthorized user Email'
                           : null,
                   onSaved: (val) => _email = val,
@@ -498,6 +488,17 @@ class _LoginPageState extends State<LoginPage> {
                   key: new Key('password'),
                   decoration: InputDecoration(
                     hintText: 'Enter Your password Here...',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        showPassword ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          showPassword = !showPassword;
+                        });
+                      },
+                    ),
                     prefixIcon: Icon(
                       Icons.enhanced_encryption,
                       color: Color(0xFFf68634),
@@ -516,7 +517,7 @@ class _LoginPageState extends State<LoginPage> {
                           BorderSide(color: Color(0xFFf68634), width: 1),
                     ),
                   ),
-                  obscureText: true,
+                  obscureText: !showPassword,
                   autocorrect: false,
                   validator: (val) => val!.isEmpty
                       ? 'Password can\'t be empty.'
@@ -540,15 +541,9 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: 20),
           new PrimaryButton(
               key: new Key('login'),
-              text: 'Login as User',
-              height: 50.0,
+              text: 'Login',
+              height: 40.0,
               onPressed: validateAndSubmit),
-          SizedBox(height: 5),
-          new PrimaryButton(
-              key: new Key('AdminLogin'),
-              text: 'Login as Admin',
-              height: 50.0,
-              onPressed: validateAndCheck),
           SizedBox(height: 5),
           new Text(
             'OR',
@@ -558,19 +553,22 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           SizedBox(height: 5),
-          Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+          Column(children: [
             new FlatButton(
                 key: new Key('need-account'),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      new Text(
-                        "don't have an account?",
-                        style: TextStyle(
-                          color: Colors.black54,
+                      Flexible(
+                        child: new AutoSizeText(
+                          "don't have an account?",
+                          maxLines: 1,
+                          style: TextStyle(
+                            color: Colors.black54,
+                          ),
                         ),
                       ),
-                      new Text(
+                      new AutoSizeText(
                         "Register",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -587,18 +585,17 @@ class _LoginPageState extends State<LoginPage> {
           new PrimaryButton(
               key: new Key('register'),
               text: 'Create an account',
-              height: 50.0,
+              height: 40.0,
               onPressed: validateAndSubmit),
           SizedBox(height: 5),
           new Text(
             'OR',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 18,
               color: Colors.grey,
             ),
           ),
-          SizedBox(height: 5),
-          Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+          Column(children: [
             new FlatButton(
                 key: new Key('need-login'),
                 child: new Row(
@@ -636,27 +633,28 @@ class _LoginPageState extends State<LoginPage> {
 
     return loading == true
         ? Loader()
-        : Scaffold(
-            resizeToAvoidBottomInset: false,
-            body: Container(
-              height: _height,
-              width: _width,
-              child: SafeArea(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Form(
-                        key: formKey,
-                        child: Column(
-                          children: usernameAndPassword() + submitWidgets(),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
+        : SafeArea(
+            child: Scaffold(
+                resizeToAvoidBottomInset: false,
+                body: Container(
+                  height: _height * 0.87,
+                  width: _width,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Form(
+                            key: formKey,
+                            child: Column(
+                              children: usernameAndPassword() + submitWidgets(),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                )),
           );
   }
 }
