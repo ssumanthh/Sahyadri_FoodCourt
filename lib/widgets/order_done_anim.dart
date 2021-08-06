@@ -11,13 +11,15 @@ class _OrderDoneAnimPageState extends State<OrderDoneAnimPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Lottie.asset(
-          'assets/animation/order_done.json',
-          repeat: false,
-          reverse: true,
-          animate: true,
+    return SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: Lottie.asset(
+            'assets/animation/order_done.json',
+            repeat: false,
+            reverse: true,
+            animate: true,
+          ),
         ),
       ),
     );
