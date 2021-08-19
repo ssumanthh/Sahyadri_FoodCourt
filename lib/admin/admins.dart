@@ -60,7 +60,6 @@ class _AdminState extends State<Admin> {
                 new Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    //button to make calls
                     SizedBox(
                       width: 100,
                       child: new TextField(
@@ -81,7 +80,6 @@ class _AdminState extends State<Admin> {
                         ),
                       ),
                     ),
-                    //button to send msg
                     new RaisedButton(
                         child: new Text('Submit',
                             style: new TextStyle(
@@ -335,7 +333,8 @@ class _AdminState extends State<Admin> {
                     //build the food menu
                     //I'm going to create a custom widget
                     search
-                        ? StreamBuilder<QuerySnapshot>(
+                        ?//if sreach is activated then this will be exicuted
+                         StreamBuilder<QuerySnapshot>(
                             stream: FirebaseFirestore.instance
                                 .collection("food")
                                 .where(
@@ -354,7 +353,8 @@ class _AdminState extends State<Admin> {
                               return Expanded(child: _buildGride(snapshot.data));
                             },
                           )
-                        : StreamBuilder<QuerySnapshot>(
+                        : //display all food items
+                        StreamBuilder<QuerySnapshot>(
                             stream: FirebaseFirestore.instance
                                 .collection("food")
                                 .snapshots(),
@@ -396,7 +396,7 @@ class _AdminState extends State<Admin> {
       ),
     );
   }
-
+//bottom bar index change on press
   checkIndex(int currentIndex) {
     setState(() {
       index = currentIndex;

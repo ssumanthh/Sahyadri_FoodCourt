@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sahyadri_food_court/admin/order_details.dart';
 import 'package:sahyadri_food_court/authentication/auth.dart';
-import 'package:sahyadri_food_court/widgets/loding.dart';
 
 class AdminOdrder extends StatefulWidget {
   AdminOdrder({required this.auth});
@@ -33,7 +32,7 @@ class _AdminOdrderState extends State<AdminOdrder> {
           orderdetails.add(element);
         });
       });
-      print('hone$orderdetails');
+      print(orderdetails);
     });
   }
 
@@ -43,6 +42,7 @@ class _AdminOdrderState extends State<AdminOdrder> {
   }
 
   Future<String?> getname(String id) async {
+    //get name of the faculty
     String? fid = '';
     await FirebaseFirestore.instance
         .collection('name')
@@ -62,6 +62,7 @@ class _AdminOdrderState extends State<AdminOdrder> {
   }
 
   Widget _buildGride(QuerySnapshot? snapshot) {
+    //display oders in the list formate
     return ListView.builder(
         itemCount: snapshot!.docs.length,
         itemBuilder: (context, index) {
@@ -113,7 +114,7 @@ class _AdminOdrderState extends State<AdminOdrder> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //Let's create the welcoming Text
+                
                
                 SizedBox(
                   height: 20.0,

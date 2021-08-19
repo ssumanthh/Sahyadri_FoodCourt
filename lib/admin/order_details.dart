@@ -264,6 +264,7 @@ class _Order_DetailsState extends State<Order_Details> {
           ),
         ),
         onPressed: () {
+          //confirm all orders 
           Navigator.pop(context);
           setState(() {
             loading = true;
@@ -287,6 +288,7 @@ class _Order_DetailsState extends State<Order_Details> {
         ),
       ),
       onPressed: () {
+        //terminate the alert dialog
         Navigator.pop(context);
       },
     );

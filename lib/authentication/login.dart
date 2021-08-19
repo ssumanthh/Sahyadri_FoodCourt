@@ -61,8 +61,6 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         loading = true;
       });
-      //if user enters admin id then give error msg
-
       try {
         String? userId = '';
         if (_formType == FormType.login) {
