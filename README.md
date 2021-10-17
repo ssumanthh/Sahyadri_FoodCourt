@@ -1,7 +1,7 @@
 
 <p>
   <div align="center">
-    <img src="./readme/header.png" width="100%"/>
+    <img src="./readme/header.jpg" width="100%"/>
    </div>
  </p>
  
